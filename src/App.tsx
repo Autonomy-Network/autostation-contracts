@@ -1,12 +1,13 @@
 
 import React, { ChangeEvent, ReactFragment, useState } from 'react';
 
-import { utils } from 'ethers';
+import { Interface } from 'ethers/lib/utils';
 
 import { Card } from '@autonomy-station/ui/Card';
 import { Input } from '@autonomy-station/ui/Input';
 import { Select } from '@autonomy-station/ui/Select';
 import { Spinner } from '@autonomy-station/ui/Spinner';
+import { TextArea } from '@autonomy-station/ui/TextArea';
 import { getContractInfo } from '@autonomy-station/lib/etherscan';
 import { SelectContractFunction } from './components/SelectContractFunction';
 
@@ -18,7 +19,7 @@ interface StationState {
   contract: {
     address: string,
     name: string,
-    abi: string | utils.Interface,
+    abi: string | Interface,
   },
 }
 
@@ -40,7 +41,7 @@ function App() {
     setState(s => ({ ...s, network: newNetwork }));
   };
 
-  const handleContractChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleContractAddressChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setState(s => ({ ...s, contract: { ...s.contract, address: value }, loading: true }));
 
@@ -57,6 +58,17 @@ function App() {
       setState(s => ({ ...s, error: <></>, loading: false, contract: { ...s.contract, name: result.ContractName, abi: result.ABI } }));
     } catch (error) {
       setState(s => ({ ...s, error: <>{error}</>, loading: false }));
+    }
+  };
+
+  const handleContractABIChange = async (newValue: string) => {
+    setState(s => ({ ...s, contract: { ...s.contract, abi: newValue } }));
+    try {
+      const parsedABI = new Interface(newValue);
+      console.log(parsedABI);
+      setState(s => ({ ...s, contract: { ...s.contract, abi: parsedABI }, error: <></> }));
+    } catch (error) {
+      setState(s => ({ ...s, error: <>Invalid ABI.</> }));
     }
   };
 
@@ -82,13 +94,14 @@ function App() {
       <Card className="w-1/3">
         <h3 className="text-xl font-semibold">Execute</h3>
         <p>ETH address</p>
-        <Input type="text" value={state.contract.address} onChange={handleContractChange}>0x...</Input>
+        <Input type="text" value={state.contract.address} onChange={handleContractAddressChange}>0x...</Input>
         <span className="flex flex-row justify-center">{ state.loading ? <Spinner size={42} /> : '' }</span>
         
         {
-          !state.loading && state.contract.abi === 'Contract source code not verified'
+          !state.loading && typeof state.contract.abi === 'string'
             ? <>
                 <p>Can't retrieve the ABI for this contract.</p>
+                <TextArea value={state.contract.abi} onChange={handleContractABIChange} placeholder="Enter contract ABI..." />
               </>
             : ''
         }
@@ -97,7 +110,7 @@ function App() {
           !state.loading && typeof state.contract.abi !== 'string'
             ? <>
                 <p>{state.contract.name}</p>
-                <SelectContractFunction abi={state.contract.abi as utils.Interface} />
+                <SelectContractFunction abi={state.contract.abi} />
               </>
             : ''
         }

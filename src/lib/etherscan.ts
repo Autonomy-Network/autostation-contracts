@@ -1,8 +1,8 @@
 
-import { utils } from 'ethers';
+import { Interface } from 'ethers/lib/utils';
 
 interface ContractSourceCodeResult {
-  ABI: string | utils.Interface;
+  ABI: string | Interface;
   ContractName: string;
 }
 
@@ -24,7 +24,7 @@ type EtherscanResult = EtherscanResultSuccess | EtherscanResultError;
 
 
 
-export async function getContractInfo(address: string) {
+export async function getContractInfo(address: string): Promise<ContractSourceCodeResult> {
   const apiKey = process.env.REACT_APP_ETHERSCAN_API_KEY;
   const url = `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
   const apiResponse = await fetch(url);
@@ -37,9 +37,9 @@ export async function getContractInfo(address: string) {
 
   const [result] = body.result;
 
-  if (result.ABI === 'Contract source code not verified') return result;
+  if (result.ABI === 'Contract source code not verified') return { ...result, ABI: '' };
 
-  const contractInterface = new utils.Interface(result.ABI as string);
+  const contractInterface = new Interface(result.ABI as string);
 
   return { ...result, ABI: contractInterface };
 }
