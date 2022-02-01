@@ -1,26 +1,26 @@
 
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 
-import { utils } from 'ethers';
+import { Interface, FormatTypes, FunctionFragment } from 'ethers/lib/utils';
 
 import { Select } from '@autonomy-station/ui/Select';
-import { useState } from 'react';
 
 interface SelectContractFunctionProps {
-  abi: utils.Interface;
+  abi: Interface;
+  onSelect: (fn: FunctionFragment) => void;
 };
 
-export const SelectContractFunction: FunctionComponent<SelectContractFunctionProps> = ({ abi }) => {
+export const SelectContractFunction: FunctionComponent<SelectContractFunctionProps> = ({ abi, onSelect }) => {
 
   const options = Object.values(abi.functions)
     .filter(value => !value.constant)
-    .map(value => value.format(utils.FormatTypes.full))
-    .map(value => ({ label: value, value }));
+    .map(value => ({ label: value.format(FormatTypes.full), value }));
 
-  const [ state, setState ] = useState({ fn: '' });
+  const [ state, setState ] = useState<{ fn?: FunctionFragment }>({});
 
-  const handleChange = (newValue: string) => {
-    setState(s => ({ ...s, fn: newValue }))
+  const handleChange = (newValue: FunctionFragment) => {
+    setState(s => ({ ...s, fn: newValue }));
+    onSelect(newValue);
   };
 
   return(
@@ -28,6 +28,8 @@ export const SelectContractFunction: FunctionComponent<SelectContractFunctionPro
       value={state.fn}
       onSelect={handleChange}
       options={options}
+      className="font-mono"
+      placeholder="Select a function..."
     />
   );
 };
