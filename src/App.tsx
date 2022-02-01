@@ -80,8 +80,9 @@ function App() {
       </section>
 
       <Card className="w-1/3">
-        <h3 className="text-xl font-semibold">Transaction</h3>
-        <Input type="text" value={state.contract.address} onChange={handleContractChange}>ETH Address</Input>
+        <h3 className="text-xl font-semibold">Execute</h3>
+        <p>ETH address</p>
+        <Input type="text" value={state.contract.address} onChange={handleContractChange}>0x...</Input>
         <span className="flex flex-row justify-center">{ state.loading ? <Spinner size={42} /> : '' }</span>
         
         {
@@ -93,7 +94,7 @@ function App() {
         }
 
         {
-          !state.loading && state.contract.abi !== 'Contract source code not verified'
+          !state.loading && typeof state.contract.abi !== 'string'
             ? <>
                 <p>{state.contract.name}</p>
                 <SelectContractFunction abi={state.contract.abi as utils.Interface} />
