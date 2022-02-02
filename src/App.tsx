@@ -5,19 +5,20 @@ import { FunctionFragment, Interface } from 'ethers/lib/utils';
 
 import { Card } from '@autonomy-station/ui/Card';
 import { Input } from '@autonomy-station/ui/Input';
+import { Button } from '@autonomy-station/ui/Button';
 import { Select } from '@autonomy-station/ui/Select';
 import { Spinner } from '@autonomy-station/ui/Spinner';
 import { TextArea } from '@autonomy-station/ui/TextArea';
 import { getContractInfo } from '@autonomy-station/lib/etherscan';
+import { InputFunctionParams } from '@autonomy-station/components/InputFunctionParams';
 import { SelectContractFunction } from '@autonomy-station/components/SelectContractFunction';
-import { InputFunctionParams } from './components/InputFunctionParams';
-import { Button } from './ui/Button';
 
 
 interface StationState {
   network: 'homestead' | 'ropsten',
   error: ReactFragment,
   loading: boolean,
+  autoFetch: boolean,
   contract: {
     address: string,
     name: string,
@@ -33,6 +34,7 @@ function App() {
     network: 'homestead',
     error: <></>,
     loading: false,
+    autoFetch: true,
     contract: {
       address: '',
       name: '',
@@ -54,6 +56,11 @@ function App() {
       return;
     }
 
+    if (!state.autoFetch) {
+      setState(s => ({ ...s, error: <></>, loading: false }));
+      return;
+    }
+
     try {
       const result = await getContractInfo(value);
       console.log(result); // TODO : REMOVE DEBUG LOG
@@ -62,6 +69,10 @@ function App() {
     } catch (error) {
       setState(s => ({ ...s, error: <>{error}</>, loading: false }));
     }
+  };
+
+  const handleAutoFetchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setState(s => ({ ...s, autoFetch: e.target.checked }));
   };
 
   const handleContractABIChange = (newValue: string) => {
@@ -102,7 +113,14 @@ function App() {
       <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-32">
         <h3 className="text-xl font-semibold">Execute</h3>
         <p>ETH address</p>
-        <Input type="text" value={state.contract.address} onChange={handleContractAddressChange}>0x...</Input>
+        <div>
+          <Input type="text" value={state.contract.address} onChange={handleContractAddressChange} className="w-full">0x...</Input>
+          <span className="flex flex-row justify-end">
+            <p className="inline-block mr-1 text-sm text-stone-400">Fetch contract ABI from Etherscan</p>
+            <input className="mt-1" type="checkbox" checked={state.autoFetch} onChange={handleAutoFetchChange} />
+          </span>
+        </div>
+
         <span className="flex flex-row justify-center">{ state.loading ? <Spinner size={42} /> : '' }</span>
         
         {

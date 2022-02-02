@@ -8,8 +8,9 @@ import { Input } from '@autonomy-station/ui/Input';
 
 function getName(param: ParamType) {
   const isArray = param.baseType === 'array';
-  const isTuple = param.baseType === 'tuple';
   if (isArray) return `${param.name}[ ]`;
+
+  const isTuple = param.baseType === 'tuple';
   if (isTuple) return `${param.name}(${param.components.map(tupleParam => tupleParam.name).join(', ')})`;
 
   return param.name;
@@ -17,10 +18,11 @@ function getName(param: ParamType) {
 
 function getType(param: ParamType) {
   const isArray = param.baseType === 'array';
-  const isTuple = param.baseType === 'tuple';
-
   if (isArray) return `${param.arrayChildren.baseType}[]`;
+
+  const isTuple = param.baseType === 'tuple';
   if (isTuple) return `tuple(${param.components.map(tupleParam => `${tupleParam.baseType}`).join(', ')})`;
+  
   return param.baseType;
 }
 
