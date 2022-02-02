@@ -1,6 +1,8 @@
 
 import { Interface } from 'ethers/lib/utils';
 
+import { etherscanConfig, Network } from '@autonomy-station/lib/networks';
+
 interface ContractSourceCodeResult {
   ABI: string | Interface;
   ContractName: string;
@@ -24,9 +26,10 @@ type EtherscanResult = EtherscanResultSuccess | EtherscanResultError;
 
 
 
-export async function getContractInfo(address: string): Promise<ContractSourceCodeResult> {
-  const apiKey = process.env.REACT_APP_ETHERSCAN_API_KEY;
-  const url = `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
+export async function getContractInfo(network: Network, address: string): Promise<ContractSourceCodeResult> {
+  const apiKey = etherscanConfig.apiKey[network];
+  const endpoints = etherscanConfig.endpoints[network];
+  const url = `${endpoints}/api?module=contract&action=getsourcecode&address=${address}&apikey=${apiKey}`
   const apiResponse = await fetch(url);
 
   if (!apiResponse.ok) throw new Error(`An unexpected error as occurred, please try again!`);

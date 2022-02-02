@@ -8,6 +8,7 @@ import { Input } from '@autonomy-station/ui/Input';
 import { Button } from '@autonomy-station/ui/Button';
 import { Select } from '@autonomy-station/ui/Select';
 import { Spinner } from '@autonomy-station/ui/Spinner';
+import { Network } from '@autonomy-station/lib/networks';
 import { TextArea } from '@autonomy-station/ui/TextArea';
 import { getContractInfo } from '@autonomy-station/lib/etherscan';
 import { InputFunctionParams } from '@autonomy-station/components/InputFunctionParams';
@@ -15,7 +16,7 @@ import { SelectContractFunction } from '@autonomy-station/components/SelectContr
 
 
 interface StationState {
-  network: 'homestead' | 'ropsten',
+  network: Network,
   error: ReactFragment,
   loading: boolean,
   autoFetch: boolean,
@@ -42,7 +43,7 @@ function App() {
     },
   });
 
-  const handleNetworkChange = (newNetwork: 'homestead' | 'ropsten') => {
+  const handleNetworkChange = (newNetwork: Network) => {
     setState(s => ({ ...s, network: newNetwork }));
   };
 
@@ -62,7 +63,7 @@ function App() {
     }
 
     try {
-      const result = await getContractInfo(value);
+      const result = await getContractInfo(state.network, value);
       console.log(result); // TODO : REMOVE DEBUG LOG
 
       setState(s => ({ ...s, error: <></>, loading: false, contract: { ...s.contract, name: result.ContractName, abi: result.ABI } }));
@@ -100,7 +101,7 @@ function App() {
           onSelect={handleNetworkChange}
           options={[
             { label: 'Mainnet', value: 'homestead' },
-            // { label: 'Ropsten', value: 'ropsten' }, // TODO : HANDLE NETWORKS
+            { label: 'Rinkeby', value: 'rinkeby' },
           ]}
         />
       </div>
