@@ -24,7 +24,8 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "hh": "npx hardhat --tsconfig tsconfig.hardhat.json"
   },
   "eslintConfig": {
     "extends": [
@@ -45,9 +46,14 @@
     ]
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-solhint": "^2.0.0",
+    "@typechain/ethers-v5": "^9.0.0",
+    "@typechain/hardhat": "^4.0.0",
     "@types/craco__craco": "^6.4.0",
     "autoprefixer": "^10.4.2",
+    "hardhat": "^2.8.3",
     "postcss": "^8.4.5",
-    "tailwindcss": "^3.0.18"
+    "tailwindcss": "^3.0.18",
+    "typechain": "^7.0.0"
   }
 }
