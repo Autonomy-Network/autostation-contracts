@@ -1,7 +1,7 @@
 
 import React, { ChangeEvent, FunctionComponent, useEffect, useState } from 'react';
 
-import { ParamType } from 'ethers/lib/utils';
+import { ParamType, defaultAbiCoder } from 'ethers/lib/utils';
 
 import { Input } from '@autonomy-station/ui/Input';
 
@@ -27,6 +27,27 @@ function getType(param: ParamType) {
 }
 
 
+function validateAddress(value: string) {
+  return /^0x[a-fA-F0-9]{40}$/.test(value);
+}
+
+function validateUint(value: string) {
+  const uint = Number(value);
+  return !isNaN(uint);
+}
+
+function validateString(_: string) {
+  return true;
+}
+
+function validate(value: string, param: ParamType) {
+  if (param.baseType === 'address') return validateAddress(value);
+  if (param.baseType.startsWith('uint')) return validateUint(value);
+  if (param.baseType === 'string') return validateString(value);
+
+  return false;
+}
+
 interface InputParamProps {
   value: string;
   param: ParamType;
@@ -38,10 +59,22 @@ export const InputParam: FunctionComponent<InputParamProps> = ({ value, param, o
   const name = getName(param);
   const type = getType(param);
 
+  const [ state, setState ] = useState(<></>);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    const isValid = validate(newValue, param);
+    if (isValid) setState(<></>);
+    else setState(<>Invalid {type}!</>);
+
+    onChange(e);
+  };
+
   return (
     <>
       <p className="mb-1">{name}</p>
-      <Input type="text" value={value} onChange={onChange} className="w-full font-mono">{type}</Input>
+      <Input type="text" value={value} onChange={handleChange} className="w-full font-mono">{type}</Input>
+      <p className="text-center italic text-red-400">{state}</p>
     </>
   );
 };
