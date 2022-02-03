@@ -1,0 +1,4 @@
+{
+  "extends": "../tsconfig.hardhat.json",
+  "compilerOptions": {}
+}
