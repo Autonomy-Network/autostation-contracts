@@ -6,6 +6,7 @@ import { Network } from '@autonomy-station/lib/networks';
 import { ExecuteSelector } from './components/ExecuteSelector';
 import { PopulatedTransaction } from 'ethers';
 import { Card } from './ui/Card';
+import { ConditionSelector } from './components/ConditionSelector';
 
 
 interface StationState {
@@ -47,14 +48,12 @@ function App() {
 
       <ExecuteSelector network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
       
-      {
+      <ConditionSelector />
+      {/* {
         state.step === 'condition'
-        ? <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-32">
-            <h3 className="text-xl font-semibold">Conditions</h3>
-            <p>Work in progress...</p>
-          </Card>
+        ? <ConditionSelector />
         : ''
-      }
+      } */}
     </main>
   );
 }
