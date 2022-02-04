@@ -1,11 +1,11 @@
 
 import React, { ChangeEvent, ReactFragment, useState } from 'react';
 
+import { Contract } from 'ethers';
 import { FunctionFragment, Interface } from 'ethers/lib/utils';
 
 import { Card } from '@autonomy-station/ui/Card';
 import { Input } from '@autonomy-station/ui/Input';
-import { Button } from '@autonomy-station/ui/Button';
 import { Select } from '@autonomy-station/ui/Select';
 import { Spinner } from '@autonomy-station/ui/Spinner';
 import { Network } from '@autonomy-station/lib/networks';
@@ -25,6 +25,7 @@ interface StationState {
     name: string,
     abi: string | Interface,
     selectedFunction?: FunctionFragment,
+    instance?: Contract;
   },
 }
 
@@ -53,7 +54,7 @@ function App() {
 
     const validAddress = /^0x[a-fA-F0-9]{40}$/.test(value);
     if (!validAddress) {
-      setState(s => ({ ...s, error: <>Invalid address!</>, loading: false }));
+      setState(s => ({ ...s, contract: { ...s.contract, name: '', abi: '' }, error: <>Invalid address!</>, loading: false }));
       return;
     }
 
@@ -67,6 +68,11 @@ function App() {
       console.log(result); // TODO : REMOVE DEBUG LOG
 
       setState(s => ({ ...s, error: <></>, loading: false, contract: { ...s.contract, name: result.ContractName, abi: result.ABI } }));
+
+      if (typeof result.ABI !== 'string') {
+        const instance = new Contract(value, result.ABI);
+        setState(s => ({ ...s, contract: { ...s.contract, instance }}));
+      }
     } catch (error) {
       setState(s => ({ ...s, error: <>{error}</>, loading: false }));
     }
@@ -80,9 +86,9 @@ function App() {
     setState(s => ({ ...s, contract: { ...s.contract, abi: newValue } }));
     try {
       const parsedABI = new Interface(newValue);
-      console.log(parsedABI); // TODO : REMOVE DEBUG LOG
+      const instance = new Contract(state.contract.address, parsedABI);
 
-      setState(s => ({ ...s, contract: { ...s.contract, abi: parsedABI }, error: <></> }));
+      setState(s => ({ ...s, contract: { ...s.contract, abi: parsedABI, instance }, error: <></> }));
     } catch (error) {
       setState(s => ({ ...s, error: <>Invalid ABI.</> }));
     }
@@ -90,6 +96,12 @@ function App() {
 
   const handleSelectedFunctionChange = (newValue: FunctionFragment) => {
     setState(s => ({ ...s, contract: { ...s.contract, selectedFunction: newValue } }));
+  };
+
+  const handleSubmitTransaction = async (inputs: unknown[]) => {
+    const fnName = state.contract.selectedFunction!.name;
+    const tx = await state.contract.instance!.populateTransaction[fnName](...inputs);
+    console.log(tx);
   };
 
   return (
@@ -136,16 +148,13 @@ function App() {
         {
           !state.loading && !!state.contract.address && typeof state.contract.abi !== 'string'
             ? <>
-                <p><strong>Contract</strong>: {state.contract.name}</p>
+                <p><strong>Contract</strong>: {state.contract.name ?? 'Unknown'}</p>
                 <SelectContractFunction abi={state.contract.abi} onSelect={handleSelectedFunctionChange} />
 
                 {
                   !!state.contract.selectedFunction
                     ? <>
-                        <InputFunctionParams params={state.contract.selectedFunction.inputs} />
-                        <span className="mt-6 flex flex-row justify-center">
-                          <Button>Next Step</Button>
-                        </span>
+                        <InputFunctionParams params={state.contract.selectedFunction.inputs} onSubmit={handleSubmitTransaction} />
                       </>
                     : ''
                 }

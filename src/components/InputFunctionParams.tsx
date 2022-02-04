@@ -4,6 +4,7 @@ import React, { ChangeEvent, FunctionComponent, useEffect, useState } from 'reac
 import { ParamType, defaultAbiCoder } from 'ethers/lib/utils';
 
 import { Input } from '@autonomy-station/ui/Input';
+import { Button } from '@autonomy-station/ui/Button';
 
 
 function getName(param: ParamType) {
@@ -16,36 +17,32 @@ function getName(param: ParamType) {
   return param.name;
 }
 
+// TODO : handle recursive type: e.g. tuple( tuple(uint256 amount)[] params )[]
 function getType(param: ParamType) {
   const isArray = param.baseType === 'array';
   if (isArray) return `${param.arrayChildren.baseType}[]`;
 
   const isTuple = param.baseType === 'tuple';
-  if (isTuple) return `tuple(${param.components.map(tupleParam => `${tupleParam.baseType}`).join(', ')})`;
-  
+  if (isTuple) return `[${param.components.map(tupleParam => `${tupleParam.baseType}`).join(', ')}]`;
+
   return param.baseType;
 }
 
-
-function validateAddress(value: string) {
-  return /^0x[a-fA-F0-9]{40}$/.test(value);
-}
-
-function validateUint(value: string) {
-  const uint = Number(value);
-  return !isNaN(uint);
-}
-
-function validateString(_: string) {
-  return true;
-}
-
 function validate(value: string, param: ParamType) {
-  if (param.baseType === 'address') return validateAddress(value);
-  if (param.baseType.startsWith('uint')) return validateUint(value);
-  if (param.baseType === 'string') return validateString(value);
+  try {
+    const isArray = param.baseType === 'array';
+    const isTuple = param.baseType === 'tuple';
+    if (isArray || isTuple) {
+      const formatted = JSON.parse(value) as unknown[];
+      defaultAbiCoder.encode([param], [formatted]);
+      return true;
+    }
 
-  return false;
+    defaultAbiCoder.encode([param], [value]);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 interface InputParamProps {
@@ -82,9 +79,10 @@ export const InputParam: FunctionComponent<InputParamProps> = ({ value, param, o
 
 interface InputFunctionParamsProps {
   params: ParamType[];
+  onSubmit: (inputs: unknown[]) => void;
 };
 
-export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = ({ params }) => {
+export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = ({ params, onSubmit }) => {
   
   const [ state, setState ] = useState<string[]>(() => params.map(_ => ''));
   useEffect(() => {
@@ -98,6 +96,20 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
     });
   };
 
+  const handleClick = () => {
+    const inputs = [...state];
+    params.forEach((param, index) => {
+      const isArray = param.baseType === 'array';
+      const isTuple = param.baseType === 'tuple';
+      if (isArray || isTuple) {
+        const formatted = JSON.parse(inputs[index]) as unknown[];
+        inputs[index] = formatted as any;
+      }
+    });
+     defaultAbiCoder.encode(params, inputs);
+    onSubmit(inputs);
+  };
+
   return(
     <>
       {
@@ -107,6 +119,22 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
           </div>
         )
       }
+      <span className="mt-6 flex flex-row justify-center">
+        <Button onClick={handleClick}>Next Step</Button>
+      </span>
     </>
   );
 };
+
+
+// TODO REMOVE THAT, THIS IS TO TEST THE UI BY INPUTTING MANUALLY AN ABI
+/*
+
+[
+  "function singleType(uint256 amount)",
+  "function arrayType(uint256[] amounts)",
+  "function tupleType(tuple(address to, uint256 amount) param)",
+  "function complexType(tuple(address to, uint256[] amount)[] params)"
+
+
+*/
