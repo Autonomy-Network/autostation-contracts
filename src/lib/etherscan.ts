@@ -4,11 +4,14 @@ import { Interface } from 'ethers/lib/utils';
 import { etherscanConfig, Network } from '@autonomy-station/lib/networks';
 
 interface ContractSourceCodeResult {
-  ABI: string | Interface;
+  ABI?: Interface;
   ContractName: string;
 }
 
-type Result = ContractSourceCodeResult;
+interface Result {
+  ABI: string;
+  ContractName: string;
+};
 
 interface EtherscanResultSuccess {
   status: '1',
@@ -40,9 +43,9 @@ export async function getContractInfo(network: Network, address: string): Promis
 
   const [result] = body.result;
 
-  if (result.ABI === 'Contract source code not verified') return { ...result, ABI: '' };
+  if (result.ABI === 'Contract source code not verified') return { ...result, ABI: undefined };
 
-  const contractInterface = new Interface(result.ABI as string);
+  const contractInterface = new Interface(result.ABI);
 
   return { ...result, ABI: contractInterface };
 }
