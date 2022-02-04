@@ -20,26 +20,28 @@ export const ConditionSelector: FunctionComponent<ConditionSelectorProps> = prop
       <p>but before:</p>
       <DateInput onChange={console.log} />
 
-      {/* TODO implement a tabs ui component */}
-      <span>OR</span>
+      {/* // TODO implement a tabs ui component */}
+      <p>-----------------------------------------------</p>
+      <p>OR <span className="italic text-sm">(todo: make a tabs component to separate both conditions)</span></p>
+      <p>-----------------------------------------------</p>
 
       <p>Execute transaction now, and then every:</p>
-      <div className="flex flex-row flex-wrap gap-2">
-        <span className="flex flex-col grow">
+      <div className="flex flex-row justify-between flex-wrap gap-2">
+        <span className="flex flex-col">
           <label>Days</label>
-          <Input type="text" value='' onChange={console.log} className="">0</Input>
+          <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
         </span>
-        <span className="flex flex-col grow">
+        <span className="flex flex-col">
           <label>Hours</label>
-          <Input type="text" value='' onChange={console.log} className="">0</Input>
+          <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
         </span>
-        <span className="flex flex-col grow">
+        <span className="flex flex-col">
           <label>Minutes</label>
-          <Input type="text" value='' onChange={console.log} className="">0</Input>
+          <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
         </span>
-        <span className="flex flex-col grow">
+        <span className="flex flex-col">
           <label>Seconds</label>
-          <Input type="text" value='' onChange={console.log} className="">0</Input>
+          <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
         </span>
       </div>
 
