@@ -2,9 +2,9 @@
 import React, { FunctionComponent } from 'react';
 
 import { Card } from '@autonomy-station/ui/Card';
+import { Input } from '@autonomy-station/ui/Input';
 import { Button } from '@autonomy-station/ui/Button';
 import { DateInput } from '@autonomy-station/ui/DateInput';
-import { Input } from '@autonomy-station/ui/Input';
 
 
 interface ConditionSelectorProps {};

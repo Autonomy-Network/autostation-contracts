@@ -1,10 +1,8 @@
 
 import React, { ChangeEvent, FunctionComponent, useEffect, useState } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
-
 import { Input } from '@autonomy-station/ui/Input';
+
 
 /** Get todays date as string formatted in `'MM/DD/YYYY'` */
 function defaultDate() {

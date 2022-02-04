@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 
+import { PopulatedTransaction } from 'ethers';
+
 import { Select } from '@autonomy-station/ui/Select';
 import { Network } from '@autonomy-station/lib/networks';
-import { ExecuteSelector } from './components/ExecuteSelector';
-import { PopulatedTransaction } from 'ethers';
-import { Card } from './ui/Card';
-import { ConditionSelector } from './components/ConditionSelector';
+import { ExecuteSelector } from '@autonomy-station/components/ExecuteSelector';
+import { ConditionSelector } from '@autonomy-station/components/ConditionSelector';
 
 
 interface StationState {
