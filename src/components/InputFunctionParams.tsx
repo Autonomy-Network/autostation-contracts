@@ -89,6 +89,24 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
     setState(params.map(_ => ''));
   }, [ params ]);
 
+  const isValid = () => {
+    try {
+      const inputs = [...state];
+      params.forEach((param, index) => {
+        const isArray = param.baseType === 'array';
+        const isTuple = param.baseType === 'tuple';
+        if (isArray || isTuple) {
+          const formatted = JSON.parse(inputs[index]) as unknown[];
+          inputs[index] = formatted as any;
+        }
+      });
+      defaultAbiCoder.encode(params, inputs);
+      return inputs;
+    } catch (err) {
+      return false;
+    }
+  };
+
   const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
     setState(s => {
       s[index] = e.target.value;
@@ -97,17 +115,8 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
   };
 
   const handleClick = () => {
-    const inputs = [...state];
-    params.forEach((param, index) => {
-      const isArray = param.baseType === 'array';
-      const isTuple = param.baseType === 'tuple';
-      if (isArray || isTuple) {
-        const formatted = JSON.parse(inputs[index]) as unknown[];
-        inputs[index] = formatted as any;
-      }
-    });
-     defaultAbiCoder.encode(params, inputs);
-    onSubmit(inputs);
+    const inputs = isValid();
+    if (inputs) onSubmit(inputs);
   };
 
   return(
@@ -120,7 +129,7 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
         )
       }
       <span className="mt-6 flex flex-row justify-center">
-        <Button onClick={handleClick}>Next Step</Button>
+        <Button onClick={handleClick} disabled={!isValid()}>Next Step</Button>
       </span>
     </>
   );

@@ -46,7 +46,7 @@ function initialState(): ExecuteState {
 interface ExecuteSelectorProps {
   edit: boolean;
   network: Network;
-  onSubmit: (tx: PopulatedTransaction) => void;
+  onSubmit: (tx?: PopulatedTransaction) => void;
 };
 
 export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit, network, onSubmit }) => {
@@ -105,8 +105,12 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
     onSubmit(tx);
   };
 
+  const handleEdit = () => {
+    onSubmit();
+  };
+
   return(
-    <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8">
+    <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
       <h3 className="text-xl font-semibold">Execute</h3>
       {
         edit
@@ -130,7 +134,9 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
                     ABI
               ------------ */}
               {
-                !state.loading && !!state.contract.address && !state.contract.abi 
+                !state.loading
+                && /^0x[a-fA-F0-9]{40}$/.test(state.contract.address)
+                && !state.contract.abi 
                   ? <>
                       <p>Can't retrieve the ABI for this contract.</p>
                       <InputAbi onAbiChange={handleABIChange} />
@@ -142,7 +148,9 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
                 FUNCTION & INPUTS
               ----------------- */}
               {
-                !state.loading && !!state.contract.address && !!state.contract.abi
+                !state.loading
+                && /^0x[a-fA-F0-9]{40}$/.test(state.contract.address)
+                && !!state.contract.abi
                   ? <>
                       <p><strong>Contract</strong>: {state.contract.name ?? 'Unknown'}</p>
                       <SelectContractFunction abi={state.contract.abi} onSelect={handleSelectedFunctionChange} />
@@ -162,16 +170,16 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
               <p className="text-center text-red-400">{state.error}</p>
             </>
           : <>
-              <span>function {state.contract.selectedFunction?.name}</span>
-              <p>on contract</p>
-              <span>{ state.contract.name ?? state.contract.address }</span>
-              <div className="flex flex-row justify-end">
-                <button
-                  className="rounded-full px-1 hover:bg-stone-300 hover:text-stone-500 hover:shadow-md"
-                >
-                  <FontAwesomeIcon icon={faPen} />
-                </button>
-              </div>
+              <p className="ml-4">{state.contract.selectedFunction?.name}</p>
+              <p className="font-semibold">on contract</p>
+              <p className="ml-4">{ !!state.contract.name ? state.contract.name : state.contract.address }</p>
+              
+              <button
+                onClick={handleEdit}
+                className="absolute top-1 right-2 rounded-full px-1 hover:bg-stone-300 hover:text-stone-500 hover:shadow-md"
+              >
+                <FontAwesomeIcon icon={faPen} />
+              </button>
             </>
       }
     </Card>

@@ -22,8 +22,8 @@ function App() {
     setState(s => ({ ...s, network: newNetwork }));
   };
 
-  const handleExecuteSubmit = (tx: PopulatedTransaction) => {
-    setState(s => ({ ...s, step: 'condition', tx }));
+  const handleExecuteSubmit = (tx?: PopulatedTransaction) => {
+    setState(s => ({ ...s, step: !!tx ? 'condition' : 'execute', tx }));
   }
 
   return (
