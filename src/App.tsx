@@ -48,12 +48,11 @@ function App() {
 
       <ExecuteSelector network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
       
-      <ConditionSelector />
-      {/* {
+      {
         state.step === 'condition'
         ? <ConditionSelector />
         : ''
-      } */}
+      }
     </main>
   );
 }

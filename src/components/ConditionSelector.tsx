@@ -22,31 +22,31 @@ export const ConditionSelector: FunctionComponent<ConditionSelectorProps> = prop
           {
             title: 'At Date',
             content: <>
-              <p>Execute transaction after:</p>
+              <p className="my-2">Execute transaction after:</p>
               <DateInput onChange={console.log} />
-              <p>but before:</p>
+              <p className="my-2">but before:</p>
               <DateInput onChange={console.log} />
             </>
           },
           {
             title: 'Recurring',
             content: <>
-              <p>Execute transaction now, and then every:</p>
-              <div className="flex flex-row justify-between flex-wrap gap-2">
+              <p className="my-2">Execute transaction now, and then every:</p>
+              <div className="flex flex-row flex-wrap gap-2">
                 <span className="flex flex-col">
-                  <label>Days</label>
+                  <label className="text-stone-400">Days</label>
                   <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
                 </span>
                 <span className="flex flex-col">
-                  <label>Hours</label>
+                  <label className="text-stone-400">Hours</label>
                   <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
                 </span>
                 <span className="flex flex-col">
-                  <label>Minutes</label>
+                  <label className="text-stone-400">Minutes</label>
                   <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
                 </span>
                 <span className="flex flex-col">
-                  <label>Seconds</label>
+                  <label className="text-stone-400">Seconds</label>
                   <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
                 </span>
               </div>

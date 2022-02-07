@@ -39,7 +39,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({ tabs }) => {
               }
               <div className="border-b border-stone-600 border-opacity-40 grow"></div>
             </div>
-            <div className="border-x border-b rounded-b-lg border-stone-600 border-opacity-40 px-4 py-2">
+            <div className="border-x border-b rounded-b-lg border-stone-600 border-opacity-40 px-4 py-8">
               { tabs[state].content }
             </div>
           </>

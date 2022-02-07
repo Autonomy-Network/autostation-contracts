@@ -88,7 +88,7 @@ export const DateInput: FunctionComponent<DateInputProps> = ({ onChange }) => {
     <div className="w-full">
       <div className="flex flex-row flex-wrap gap-2 items-center">
         <Input onChange={handleDateChange} value={state.date} type="text" className="grow">MM/DD/YYYY</Input>
-        <Input onChange={handleTimeChange} value={state.time} type="text" className="grow">HH:MM</Input>
+        <Input onChange={handleTimeChange} value={state.time} type="text" className="w-24">HH:MM</Input>
       </div>
       <p className="italic text-center text-red-400">{state.error}</p>
     </div>
