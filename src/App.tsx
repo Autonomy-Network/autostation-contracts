@@ -36,6 +36,7 @@ function App() {
           onSelect={handleNetworkChange}
           options={[
             { label: 'Mainnet', value: 'homestead' },
+            { label: 'Ropsten', value: 'ropsten' },
             { label: 'Rinkeby', value: 'rinkeby' },
           ]}
         />
