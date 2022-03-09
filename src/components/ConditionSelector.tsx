@@ -6,6 +6,7 @@ import { Tabs } from '@autonomy-station/ui/Tabs';
 import { Input } from '@autonomy-station/ui/Input';
 import { Button } from '@autonomy-station/ui/Button';
 import { DateInput } from '@autonomy-station/ui/DateInput';
+import { RecurringInput } from '@autonomy-station/ui/RecurringInput';
 
 
 interface ConditionSelectorProps {};
@@ -20,36 +21,19 @@ export const ConditionSelector: FunctionComponent<ConditionSelectorProps> = prop
       <Tabs
         tabs={[
           {
-            title: 'At Date',
+            title: 'Recurring',
             content: <>
-              <p className="my-2">Execute transaction after:</p>
+              <p className="my-2">Execute transaction at:</p>
               <DateInput onChange={console.log} />
-              <p className="my-2">but before:</p>
-              <DateInput onChange={console.log} />
+              <p className="my-2 mt-4">and then every:</p>
+              <RecurringInput onChange={console.log}/>
             </>
           },
           {
-            title: 'Recurring',
+            title: 'One time',
             content: <>
-              <p className="my-2">Execute transaction now, and then every:</p>
-              <div className="flex flex-row flex-wrap gap-2">
-                <span className="flex flex-col">
-                  <label className="text-stone-400">Days</label>
-                  <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
-                </span>
-                <span className="flex flex-col">
-                  <label className="text-stone-400">Hours</label>
-                  <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
-                </span>
-                <span className="flex flex-col">
-                  <label className="text-stone-400">Minutes</label>
-                  <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
-                </span>
-                <span className="flex flex-col">
-                  <label className="text-stone-400">Seconds</label>
-                  <Input type="text" value='' onChange={console.log} className="w-16">0</Input>
-                </span>
-              </div>
+              <p className="my-2">Execute transaction at:</p>
+              <DateInput onChange={console.log} />
             </>
           },
         ]}

@@ -2,14 +2,14 @@
 import React, { ChangeEvent, FunctionComponent } from 'react';
 
 interface InputProps {
-  type: 'email' | 'password' | 'text';
-  value: string;
+  type: 'text' | 'number';
+  value: string | number;
   children?: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   className?: string;
 };
 
-export const Input: FunctionComponent<InputProps> = ({ type, value, onChange, className, children = "Entrez votre texte" }) => {
+export const Input: FunctionComponent<InputProps> = ({ type, value, onChange, className, children = "Default Text" }) => {
   return(
     <input
       type={type}
