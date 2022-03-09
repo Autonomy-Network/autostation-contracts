@@ -24,7 +24,7 @@ export const ConditionSelector: FunctionComponent<ConditionSelectorProps> = prop
             title: 'Recurring',
             content: <>
               <p className="my-2">Execute transaction at:</p>
-              <DateInput onChange={console.log} />
+              <DateInput onChange={console.log} key="recurring"/>
               <p className="my-2 mt-4">and then every:</p>
               <RecurringInput onChange={console.log}/>
             </>
@@ -33,7 +33,7 @@ export const ConditionSelector: FunctionComponent<ConditionSelectorProps> = prop
             title: 'One time',
             content: <>
               <p className="my-2">Execute transaction at:</p>
-              <DateInput onChange={console.log} />
+              <DateInput onChange={console.log} key="oneTime"/>
             </>
           },
         ]}
