@@ -13,7 +13,7 @@ function defaultDate() {
 /** Get current time plus 1 hour in format `'HH:MM'` */
 function defaultTime() {
   const date = new Date();
-  return `${date.getHours() ===0 ? '00':'' + date.getHours()}:${date.getMinutes() <10 ? '0':'' + date.getMinutes()}`
+  return `${("0" + date.getHours()).slice(-2)}:${("0" + date.getMinutes()).slice(-2)}`
 }
 
 function isDateInTheFuture(date: Date) {
