@@ -13,7 +13,7 @@ function defaultDate() {
 /** Get current time plus 1 hour in format `'HH:MM'` */
 function defaultTime() {
   const date = new Date();
-  return `${date.getHours() + 1}:${date.getMinutes()}`
+  return `${date.getHours() ===0 ? '00':'' + date.getHours()}:${date.getMinutes() <10 ? '0':'' + date.getMinutes()}`
 }
 
 function isDateInTheFuture(date: Date) {
@@ -87,8 +87,14 @@ export const DateInput: FunctionComponent<DateInputProps> = ({ onChange }) => {
   return(
     <div className="w-full">
       <div className="flex flex-row flex-wrap gap-2 items-center">
-        <Input onChange={handleDateChange} value={state.date} type="text" className="grow">MM/DD/YYYY</Input>
-        <Input onChange={handleTimeChange} value={state.time} type="text" className="w-24">HH:MM</Input>
+        <span className='flex flex-col'>
+          <label className="text-stone-400">Date</label>
+          <Input onChange={handleDateChange} value={state.date} type="text" className="grow">MM/DD/YYYY</Input>
+        </span>
+        <span className='flex flex-col'>
+          <label className="text-stone-400">Time</label>
+          <Input onChange={handleTimeChange} value={state.time} type="text" className="w-24">HH:MM</Input>
+        </span>
       </div>
       <p className="italic text-center text-red-400">{state.error}</p>
     </div>
