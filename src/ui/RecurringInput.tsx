@@ -14,6 +14,13 @@ function isValidMinuteSecond(time: number) {
 	return time < 60 && time >=0;
 }
 
+function getTimeStamp(day: number, hour: number, minute: number, second: number) {
+	day = day * 24 * 60 * 60;
+	hour = hour * 60 * 60;
+	minute = minute * 60;
+	return day + hour + minute + second;
+}
+
 interface RecurringInputProps {
 	onChange: (timestamp?: number) => void;
 };
@@ -29,7 +36,7 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 		let error = isValidDay(day) ? '' : 'Only 365 days available!';
 
 		// emit values
-		onChange(!!error ? undefined : event.target.valueAsNumber);
+		onChange(!!error ? undefined : getTimeStamp(event.target.valueAsNumber, state.hours, state.minutes, state.seconds));
 
 		if(isValidDay(day)){
 			setState(s => ({ ...s, days: event.target.valueAsNumber, error }));
@@ -45,7 +52,7 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 		let error = isValidHour(hour) ? '' : 'Only 23 hours available!';
 
 		// emit values
-		onChange(!!error ? undefined : event.target.valueAsNumber);
+		onChange(!!error ? undefined : getTimeStamp(state.days, event.target.valueAsNumber, state.minutes, state.seconds));
 
 		if(isValidHour(hour)){
 			setState(s => ({ ...s, hours: event.target.valueAsNumber, error }));
@@ -61,7 +68,7 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 		let error = isValidMinuteSecond(minute) ? '' : 'Only 59 minutes available!';
 
 		// emit values
-		onChange(!!error ? undefined : event.target.valueAsNumber);
+		onChange(!!error ? undefined : getTimeStamp(state.days, state.hours, event.target.valueAsNumber, state.seconds));
 
 		if(isValidMinuteSecond(minute)){
 			setState(s => ({ ...s, minutes: event.target.valueAsNumber, error }));
@@ -77,7 +84,7 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 		let error = isValidMinuteSecond(second) ? '' : 'Only 59 seconds available!';
 
 		// emit values
-		onChange(!!error ? undefined : event.target.valueAsNumber);
+		onChange(!!error ? undefined : getTimeStamp(state.days, state.hours, state.minutes, event.target.valueAsNumber));
 
 		if(isValidMinuteSecond(second)){
 			setState(s => ({ ...s, seconds: event.target.valueAsNumber, error }));
@@ -86,7 +93,6 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 		}
 	}
 
-	// TODO: Aggregate day, hour, minute and seconds to get a timestamp
 
 	return(
 		<div className="w-full">

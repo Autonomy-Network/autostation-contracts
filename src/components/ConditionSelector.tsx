@@ -3,7 +3,6 @@ import React, { FunctionComponent } from 'react';
 
 import { Card } from '@autonomy-station/ui/Card';
 import { Tabs } from '@autonomy-station/ui/Tabs';
-import { Input } from '@autonomy-station/ui/Input';
 import { Button } from '@autonomy-station/ui/Button';
 import { DateInput } from '@autonomy-station/ui/DateInput';
 import { RecurringInput } from '@autonomy-station/ui/RecurringInput';
