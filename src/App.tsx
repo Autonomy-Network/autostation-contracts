@@ -43,8 +43,8 @@ function App() {
       </div>
 
       <section className="mt-32 mb-16 text-center">
-        <h1 className="text-5xl font-semibold mb-4">Autonomy Station</h1>
-        <h2 className="font-semibold">Automate blockchain transactions</h2>
+        <h1 className="text-5xl font-semibold mb-4">Auto Station</h1>
+        <h2 className="font-semibold">Automate blockchain transactions with Autonomy Network</h2>
       </section>
 
       <ExecuteSelector network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
