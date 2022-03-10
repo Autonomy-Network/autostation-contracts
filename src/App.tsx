@@ -38,7 +38,8 @@ function App() {
             { label: 'Mainnet', value: 'homestead' },
             { label: 'Ropsten', value: 'ropsten' },
             { label: 'Rinkeby', value: 'rinkeby' },
-            { label: 'Avax', value: 'avax'}
+            { label: 'AVAX', value: 'avax'},
+            { label: 'BSC', value: 'bsc'}
           ]}
         />
       </div>
