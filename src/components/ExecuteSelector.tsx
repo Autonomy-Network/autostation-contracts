@@ -111,18 +111,18 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
 
   return(
     <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
-      <h3 className="text-xl font-semibold">Execute</h3>
+      <h3 className="text-xl font-semibold text-center ">Smart contract automation</h3>
       {
         edit
           ? <>
               {/* ------------
                   ADDRESS
               ------------ */}
-              <p>ETH address</p>
+              <p>Contract address to automate:</p>
               <div>
                 <Input type="text" value={state.contract.address} onChange={handleContractAddressChange} className="w-full">0x...</Input>
                 <span className="flex flex-row justify-end">
-                  <p className="inline-block mr-1 text-sm text-stone-400">Fetch contract ABI from Etherscan</p>
+                  <p className="inline-block mr-1 text-sm text-stone-400">Fetch contract ABI automatically</p>
                   <input className="mt-1" type="checkbox" checked={state.autoFetch} onChange={handleAutoFetchChange} />
                 </span>
               </div>

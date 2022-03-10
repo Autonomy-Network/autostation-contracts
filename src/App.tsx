@@ -38,6 +38,7 @@ function App() {
             { label: 'Mainnet', value: 'homestead' },
             { label: 'Ropsten', value: 'ropsten' },
             { label: 'Rinkeby', value: 'rinkeby' },
+            { label: 'Avax', value: 'avax'}
           ]}
         />
       </div>
