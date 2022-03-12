@@ -26,3 +26,11 @@ yarn-error.log*
 artifacts/
 cache/
 typechain-types/
+
+# Brownie giga-chad
+__pycache__
+.env
+.history
+.hypothesis/
+build/
+reports/
