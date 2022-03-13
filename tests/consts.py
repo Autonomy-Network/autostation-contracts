@@ -46,3 +46,9 @@ REV_MSG_TOO_EARLY = "TimeConditions: too early"
 REV_MSG_TOO_LATE = "TimeConditions: too late"
 REV_MSG_NOT_PASSED_START = "TimeConditions: not passed start"
 REV_MSG_TOO_EARLY_PERIOD = "TimeConditions: too early period"
+
+
+# UniswapV2Amounts
+WETH_ADDR = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+USDC_ADDR = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+REV_MSG_OUTPUT_TOO_LOW = "UniswapV2Amounts: output too low"
