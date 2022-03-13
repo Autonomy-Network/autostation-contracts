@@ -77,7 +77,7 @@ describe('TimeConditions contract', () => {
 
       const CALL_ID = 1;
 
-      const lastExecA = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecA = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecA).to.be.equal(0);
 
       // statically call the function to get access to the returned values
@@ -93,7 +93,7 @@ describe('TimeConditions contract', () => {
       const block = await ethers.provider.getBlock('latest');
       const now = block.timestamp;
 
-      const lastExecB = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecB = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecB).to.be.equal(now);
     });
 
@@ -103,7 +103,7 @@ describe('TimeConditions contract', () => {
 
       const block = await ethers.provider.getBlock('latest');
       const now = block.timestamp;
-      const lastExecA = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecA = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecA).to.be.equal(now);
 
       expect(timeConditions.executeAfter(owner.address, CALL_ID, ONE_HOUR, ZERO_ADDRESS, '0x00')).to.be.revertedWith('Error: too early');
@@ -119,7 +119,7 @@ describe('TimeConditions contract', () => {
       await ethers.provider.send('evm_increaseTime', [ ONE_HOUR + 10 ]); // increase eth node time by some amount in seconds
       await ethers.provider.send('evm_mine', []); // force mine a block so that block.timestamp is set as we wanted above
 
-      const lastExecA = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecA = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecA).to.be.equal(previousTime);
 
       // statically call the function to get access to the returned values
@@ -132,7 +132,7 @@ describe('TimeConditions contract', () => {
       const receipt = await tx.wait();
       expect(receipt.status).to.be.equal(1);
 
-      const lastExecB = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecB = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecB).to.be.equal(previousTime + ONE_HOUR);
     });
 

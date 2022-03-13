@@ -2,6 +2,7 @@ pragma solidity 0.8.6;
 
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./autonomy/abstract/Shared.sol";
 import "../interfaces/autonomy/IForwarder.sol";
 
 
@@ -16,10 +17,15 @@ import "../interfaces/autonomy/IForwarder.sol";
 *           arbitrary number of calls in an arbitrary order.
 * @author   @quantafire (James Key)
 */
-contract FundsRouter is ReentrancyGuard {
+contract FundsRouter is ReentrancyGuard, Shared {
+
+    event BalanceChanged(address indexed user, uint newBal);
+
 
     // ETH balances to pay for execution fees
     mapping(address => uint) public balances;
+    // The Autonomy Registry to send the execution fee to
+    address payable public immutable registry;
     // The forwarder used by the Registry to guarantee that calls from it
     // have the correct `user` and `feeAmount` arguments
     IForwarder public immutable regUserFeeVeriForwarder;
@@ -38,9 +44,11 @@ contract FundsRouter is ReentrancyGuard {
 
 
     constructor(
+        address payable registry_,
         IForwarder regUserFeeVeriForwarder_,
         IForwarder routerUserVeriForwarder_
     ) ReentrancyGuard() {
+        registry = registry_;
         regUserFeeVeriForwarder = regUserFeeVeriForwarder_;
         routerUserVeriForwarder = routerUserVeriForwarder_;
     }
@@ -50,7 +58,9 @@ contract FundsRouter is ReentrancyGuard {
     * @param spender    The address that should be credited with the funds.
     */
     function depositETH(address spender) external payable {
-        balances[spender] += msg.value;
+        uint newBal = balances[spender] + msg.value;
+        balances[spender] = newBal;
+        emit BalanceChanged(spender, newBal);
     }
 
     /**
@@ -62,8 +72,10 @@ contract FundsRouter is ReentrancyGuard {
         uint startBal = balances[msg.sender];
         require(startBal >= amount, "FRouter: not enough funds");
 
-        balances[msg.sender] = startBal - amount;
+        uint newBal = startBal - amount;
+        balances[msg.sender] = newBal;
         recipient.transfer(amount);
+        emit BalanceChanged(msg.sender, newBal);
     }
 
     /**
@@ -98,13 +110,15 @@ contract FundsRouter is ReentrancyGuard {
         address user,
         uint feeAmount,
         FcnData[] calldata fcnData
-    ) external nonReentrant returns (bool success, bytes memory returnData) {
+    ) external nonReentrant returns (bool, bytes memory) {
         require(msg.sender == address(regUserFeeVeriForwarder), "FRouter: not userFeeForw");
 
         uint userBal = balances[user];
         uint routerStartBal = address(this).balance;
         uint ethSent = 0;
 
+        bool success;
+        bytes memory returnData;
         // Iterate through conditions and make sure they're all met
         for (uint i; i < fcnData.length; i++) {
             ethSent += fcnData[i].ethForCall;
@@ -115,8 +129,8 @@ contract FundsRouter is ReentrancyGuard {
             } else {
                 (success, returnData) = fcnData[i].target.call{value: fcnData[i].ethForCall}(fcnData[i].callData);
             }
-            // If a condition failed, send the info back to the Registry via regUserFeeVeriForwarder so it can appear in a revert message properly
-            if (!success) { return (success, returnData); }
+
+            revertFailedCall(success, returnData);
         }
 
         uint routerEndBal = address(this).balance;
@@ -125,9 +139,12 @@ contract FundsRouter is ReentrancyGuard {
         uint ethReceivedDuringForwards = routerEndBal + ethSent - routerStartBal;
 
         // Make sure that the user has enough balance
+        // Having both these checks is definitely overkill - need to get rid of 1
         require(userBal + ethReceivedDuringForwards >= ethSent + feeAmount, "FRouter: not enough funds - fee");
         require(userBal + ethReceivedDuringForwards - ethSent - feeAmount == userBal + routerEndBal - routerStartBal - feeAmount, "FRouter: something doesnt add up");
         balances[user] = userBal + ethReceivedDuringForwards - ethSent - feeAmount;
+
+        registry.transfer(feeAmount);
     }
 
     // Receive ETH from called contracts, perhaps if they have a reward for poking them

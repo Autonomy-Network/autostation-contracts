@@ -9,16 +9,17 @@ pragma solidity 0.8.6;
 *           is executed between 2 times (with `betweenTimes`, presumably for a
 *           non-recurring request), aswell as to be called periodically every
 *           X seconds (with `everyTimePeriod`, presumably for recurring requests).
-* @author   @quantafire (James Key), @pldespaigne (Pierre Despaigne)
+* @author   @pldespaigne (Pierre-Louis Despaigne), @quantafire (James Key)
 */
 contract TimeConditions {
 
     event Started(address indexed user, uint callId);
+    
 
     // Mapping a user to last execution date of its ongoing requests
     // - because a user can have multiple requests, we introduce an arbitrary requestID (also refered as `callId`)
     // - users can know their previous `callId`s by looking at emitted `Started` events
-    mapping(address => mapping(uint => uint)) public userToIDtoLastExecTime;
+    mapping(address => mapping(uint => uint)) public userToIdToLastExecTime;
     // The forwarder address through which calls are forwarded that guarantee the 1st argument, `user`, is accurate
     address public immutable routerUserVeriForwarder;
 
@@ -58,20 +59,20 @@ contract TimeConditions {
         uint startTime,
         uint periodLength
     ) external {
-        require(msg.sender == routerUserVeriForwarder, "TimeConditions: not userFeeForw");
+        require(msg.sender == routerUserVeriForwarder, "TimeConditions: not userForw");
 
-        uint lastExecTime = userToIDtoLastExecTime[user][callId];
+        uint lastExecTime = userToIdToLastExecTime[user][callId];
 
         // immediately execute the first time
         if (lastExecTime == 0) {
             require(block.timestamp >= startTime, "TimeConditions: not passed start");
-            userToIDtoLastExecTime[user][callId] = startTime;
+            userToIdToLastExecTime[user][callId] = startTime;
             emit Started(user, callId);
 
         } else {
             uint nextExecTime = lastExecTime + periodLength;
-            require(block.timestamp >= nextExecTime, "Error: too early!"); // solhint-disable-line not-rely-on-time
-            userToIDtoLastExecTime[user][callId] = nextExecTime;
+            require(block.timestamp >= nextExecTime, "TimeConditions: too early period");
+            userToIdToLastExecTime[user][callId] = nextExecTime;
         }
     }
 }
