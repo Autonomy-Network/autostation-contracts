@@ -7,6 +7,9 @@ import { Select } from '@autonomy-station/ui/Select';
 import { Network } from '@autonomy-station/lib/networks';
 import { ExecuteSelector } from '@autonomy-station/components/ExecuteSelector';
 import { ConditionSelector } from '@autonomy-station/components/ConditionSelector';
+import { AutomationHistory } from './components/AutomationHistory';
+import { DepositFunds } from './components/DepositFunds';
+import { GlobalStateProvider } from './state/provider'
 
 
 interface StationState {
@@ -28,6 +31,8 @@ function App() {
   }
 
   return (
+
+  <GlobalStateProvider>
     <main className="min-h-full flex flex-col gap-4 items-center text-stone-600 bg-gradient-to-b from-stone-100 to-stone-300">
       
       <div className="fixed top-1 right-4">
@@ -39,7 +44,8 @@ function App() {
             { label: 'Ropsten', value: 'ropsten' },
             { label: 'Rinkeby', value: 'rinkeby' },
             { label: 'AVAX', value: 'avax'},
-            { label: 'BSC', value: 'bsc'}
+            { label: 'BSC', value: 'bsc'},
+            { label: 'Fuji', value: 'fuji'}
           ]}
         />
       </div>
@@ -48,15 +54,16 @@ function App() {
         <h1 className="text-5xl font-semibold mb-4">Auto Station</h1>
         <h2 className="font-semibold">Automate blockchain transactions with Autonomy Network</h2>
       </section>
-
+      <DepositFunds network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
       <ExecuteSelector network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
-      
+      <AutomationHistory network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
       {
         state.step === 'condition'
-        ? <ConditionSelector />
+        ? <ConditionSelector params={['something']} onSubmit={handleExecuteSubmit} />
         : ''
       }
     </main>
+  </GlobalStateProvider>
   );
 }
 
