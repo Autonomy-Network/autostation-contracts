@@ -1,7 +1,7 @@
 
 import React, { FunctionComponent } from 'react';
 
-import { GlobalContext, useGlobalState } from './hook';
+import { GlobalContext, useGlobalState } from '@autonomy-station/state/hook';
 
 
 interface GlobalStateProviderProps {};
