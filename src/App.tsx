@@ -5,11 +5,11 @@ import { PopulatedTransaction } from 'ethers';
 
 import { Select } from '@autonomy-station/ui/Select';
 import { Network } from '@autonomy-station/lib/networks';
+import { GlobalStateProvider } from '@autonomy-station/state/provider';
+import { DepositFunds } from '@autonomy-station/components/DepositFunds';
 import { ExecuteSelector } from '@autonomy-station/components/ExecuteSelector';
 import { ConditionSelector } from '@autonomy-station/components/ConditionSelector';
-import { AutomationHistory } from './components/AutomationHistory';
-import { DepositFunds } from './components/DepositFunds';
-import { GlobalStateProvider } from './state/provider'
+// import { AutomationHistory } from '@autonomy-station/components/AutomationHistory';
 
 
 interface StationState {
@@ -56,10 +56,10 @@ function App() {
       </section>
       <DepositFunds network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
       <ExecuteSelector network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
-      <AutomationHistory network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} />
+      {/* <AutomationHistory network={state.network} edit={state.step === 'execute'} onSubmit={handleExecuteSubmit} /> */}
       {
         state.step === 'condition'
-        ? <ConditionSelector params={['something']} onSubmit={handleExecuteSubmit} />
+        ? <ConditionSelector /* params={['something']} onSubmit={handleExecuteSubmit} */ />
         : ''
       }
     </main>
