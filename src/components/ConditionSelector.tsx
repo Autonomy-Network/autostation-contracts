@@ -1,5 +1,5 @@
 // TODO: RENAME FILE TO PRESETSELECTOR
-import React, { FunctionComponent, ChangeEvent, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import { Card } from '@autonomy-station/ui/Card';
 import { Tabs } from '@autonomy-station/ui/Tabs';
 import { Button } from '@autonomy-station/ui/Button';

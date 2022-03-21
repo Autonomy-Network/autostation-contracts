@@ -1,7 +1,6 @@
 import React, { ChangeEvent, FunctionComponent, useState } from 'react';
 
 import { Input } from '@autonomy-station/ui/Input';
-import { Button } from '@autonomy-station/ui/Button';
 
 function isValidDay(day: number) {	
 	return day <= 365 && day >= 0;
