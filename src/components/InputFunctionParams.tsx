@@ -116,7 +116,9 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
 
   const handleClick = () => {
     const inputs = isValid();
-    if (inputs) onSubmit(inputs);
+    if (inputs){
+      onSubmit(inputs);
+    } 
   };
 
   return(
@@ -128,8 +130,8 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
           </div>
         )
       }
-      <span className="mt-6 flex flex-row justify-center">
-        <Button onClick={handleClick} disabled={!isValid()}>Next Step</Button>
+      <span className="mt-6 flex flex-row space-x-2 justify-center">
+        <Button onClick={handleClick} disabled={!isValid()}>Next</Button>
       </span>
     </>
   );

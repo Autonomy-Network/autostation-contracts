@@ -1,5 +1,5 @@
-
-import React, { ChangeEvent, FunctionComponent, ReactFragment, useEffect, useState } from 'react';
+// TODO: RENAME TO CUSTOMSELECTOR
+import React, { ChangeEvent, FunctionComponent, ReactFragment, useEffect, useState, useMemo } from 'react';
 
 import { Contract, PopulatedTransaction } from 'ethers';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +17,7 @@ import { InputFunctionParams } from '@autonomy-station/components/InputFunctionP
 import { SelectContractFunction } from '@autonomy-station/components/SelectContractFunction';
 
 
-interface ExecuteState {
+export interface ExecuteState {
   error: ReactFragment,
   loading: boolean,
   autoFetch: boolean,
@@ -44,18 +44,21 @@ function initialState(): ExecuteState {
 
 
 interface ExecuteSelectorProps {
+  id: number;
   edit: boolean;
   network: Network;
-  onSubmit: (tx?: PopulatedTransaction) => void;
+    // TODO: BETTER TYPECHECK FOR CALLDATA - POTENTIALLY REMOVE TX AND ADDRESS
+  onSubmit: (tx?: PopulatedTransaction, address?: string, callData?: Array<any>) => void;
 };
 
-export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit, network, onSubmit }) => {
+export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ id, edit, network, onSubmit }) => {
 
   useEffect(() => {
     setState(initialState());
   }, [ network ]);
 
   const [ state, setState ] = useState<ExecuteState>(initialState());
+  const [ editor, setEditor ] = useState<boolean>(edit);
 
   const handleContractAddressChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -72,7 +75,6 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
     setState(s => ({ ...s, loading: true }));
     try {
       const result = await getContractInfo(network, value);
-
       setState(s => ({ ...s, contract: { ...s.contract, name: result.ContractName, abi: result.ABI } }));
 
       if (!!result.ABI) {
@@ -100,88 +102,93 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ edit,
 
   const handleSubmitTransaction = async (inputs: unknown[]) => {
     const fnName = state.contract.selectedFunction!.name;
+    const fnAddress = state.contract.address;
     const tx = await state.contract.instance!.populateTransaction[fnName](...inputs);
-    console.log(tx);
-    onSubmit(tx);
+    // TODO: 0 and false inputs here might need to be changed depending on contract
+    // TODO: CALLDATA NEEDS TO GET AN EXTRA 2 INPUTS FROM THE USER, ethForCall and verifyUser - https://github.com/Autonomy-Network/autonomy-station/blob/0ce19546618da6a58bc886bba9bdd712c91672ff/contracts/FundsRouter.sol#L94
+    let callData = [fnAddress, tx.data, 0, false];
+    onSubmit(tx, fnAddress, callData);
+    setEditor(false);
   };
-
+  // TODO: TEST THAT EDITING WORKS FINE
   const handleEdit = () => {
+    setEditor(true);
     onSubmit();
   };
 
   return(
-    <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
-      <h3 className="text-xl font-semibold text-center ">Smart contract automation</h3>
-      {
-        edit
-          ? <>
-              {/* ------------
-                  ADDRESS
-              ------------ */}
-              <p>Contract address to automate:</p>
-              <div>
-                <Input type="text" value={state.contract.address} onChange={handleContractAddressChange} className="w-full">0x...</Input>
-                <span className="flex flex-row justify-end">
-                  <p className="inline-block mr-1 text-sm text-stone-400">Fetch contract ABI automatically</p>
-                  <input className="mt-1" type="checkbox" checked={state.autoFetch} onChange={handleAutoFetchChange} />
-                </span>
-              </div>
+      <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
+        <h3 className="text-xl font-semibold text-center ">Smart contract automation {id}</h3>
+        {
+          editor
+            ? <>
+                {/* ------------
+                    ADDRESS
+                ------------ */}
+                <p>Contract address to automate:</p>
+                <div>
+                  <Input type="text" value={state.contract.address} onChange={handleContractAddressChange} className="w-full">0x...</Input>
+                  <span className="flex flex-row justify-end">
+                    <p className="inline-block mr-1 text-sm text-stone-400">Fetch contract ABI automatically</p>
+                    <input className="mt-1" type="checkbox" checked={state.autoFetch} onChange={handleAutoFetchChange} />
+                  </span>
+                </div>
 
-              <span className="flex flex-row justify-center">{ state.loading ? <Spinner size={42} /> : '' }</span>
+                <span className="flex flex-row justify-center">{ state.loading ? <Spinner size={42} /> : '' }</span>
 
 
-              {/* ------------
-                    ABI
-              ------------ */}
-              {
-                !state.loading
-                && /^0x[a-fA-F0-9]{40}$/.test(state.contract.address)
-                && !state.contract.abi 
-                  ? <>
-                      <p>Can't retrieve the ABI for this contract.</p>
-                      <InputAbi onAbiChange={handleABIChange} />
-                    </>
-                  : ''
-              }
+                {/* ------------
+                      ABI
+                ------------ */}
+                {
+                  !state.loading
+                  && /^0x[a-fA-F0-9]{40}$/.test(state.contract.address)
+                  && !state.contract.abi 
+                    ? <>
+                        <p>Can't retrieve the ABI for this contract.</p>
+                        <InputAbi onAbiChange={handleABIChange} />
+                      </>
+                    : ''
+                }
 
-              {/* ----------------
-                FUNCTION & INPUTS
-              ----------------- */}
-              {
-                !state.loading
-                && /^0x[a-fA-F0-9]{40}$/.test(state.contract.address)
-                && !!state.contract.abi
-                  ? <>
-                      <p><strong>Contract</strong>: {state.contract.name ?? 'Unknown'}</p>
-                      <SelectContractFunction abi={state.contract.abi} onSelect={handleSelectedFunctionChange} />
+                {/* ----------------
+                  FUNCTION & INPUTS
+                ----------------- */}
+                {
+                  !state.loading
+                  && /^0x[a-fA-F0-9]{40}$/.test(state.contract.address)
+                  && !!state.contract.abi
+                    ? <>
+                        <p><strong>Contract</strong>: {state.contract.name ?? 'Unknown'}</p>
+                        <SelectContractFunction abi={state.contract.abi} onSelect={handleSelectedFunctionChange} />
 
-                      {
-                        !!state.contract.selectedFunction
-                          ? <>
-                              <InputFunctionParams params={state.contract.selectedFunction.inputs} onSubmit={handleSubmitTransaction} />
-                            </>
-                          : ''
-                      }
+                        {
+                          !!state.contract.selectedFunction
+                            ? <>
+                                <InputFunctionParams params={state.contract.selectedFunction.inputs} onSubmit={handleSubmitTransaction} />
+                              </>
+                            : ''
+                        }
 
-                    </>
-                  : ''
-              }
+                      </>
+                    : ''
+                }
 
-              <p className="text-center text-red-400">{state.error}</p>
-            </>
-          : <>
-              <p className="ml-4">{state.contract.selectedFunction?.name}</p>
-              <p className="font-semibold">on contract</p>
-              <p className="ml-4">{ !!state.contract.name ? state.contract.name : state.contract.address }</p>
-              
-              <button
-                onClick={handleEdit}
-                className="absolute top-1 right-2 rounded-full px-1 hover:bg-stone-300 hover:text-stone-500 hover:shadow-md"
-              >
-                <FontAwesomeIcon icon={faPen} />
-              </button>
-            </>
-      }
-    </Card>
+                <p className="text-center text-red-400">{state.error}</p>
+              </>
+            : <>
+                <p className="ml-4">{state.contract.selectedFunction?.name}</p>
+                <p className="font-semibold">on contract</p>
+                <p className="ml-4">{ !!state.contract.name ? state.contract.name : state.contract.address }</p>
+                
+                <button
+                  onClick={handleEdit}
+                  className="absolute top-1 right-2 rounded-full px-1 hover:bg-stone-300 hover:text-stone-500 hover:shadow-md"
+                >
+                  <FontAwesomeIcon icon={faPen} />
+                </button>
+              </>
+        }
+      </Card>
   );
 };

@@ -16,6 +16,8 @@ export const SelectContractFunction: FunctionComponent<SelectContractFunctionPro
     .filter(value => !value.constant)
     .map(value => ({ label: value.format(FormatTypes.full), value }));
 
+  console.log( Object.values(abi))
+
   const [ state, setState ] = useState<{ fn?: FunctionFragment }>({});
 
   const handleChange = (newValue: FunctionFragment) => {
