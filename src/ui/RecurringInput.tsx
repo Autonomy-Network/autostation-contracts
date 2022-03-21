@@ -1,6 +1,7 @@
 import React, { ChangeEvent, FunctionComponent, useState } from 'react';
 
 import { Input } from '@autonomy-station/ui/Input';
+import { Button } from '@autonomy-station/ui/Button';
 
 function isValidDay(day: number) {	
 	return day <= 365 && day >= 0;
@@ -92,7 +93,6 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 			setState(s => ({ ...s, seconds: 0, error }));
 		}
 	}
-
 
 	return(
 		<div className="w-full">

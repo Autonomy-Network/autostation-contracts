@@ -9,14 +9,16 @@ interface Tab {
 
 interface TabsProps {
   tabs: Tab[];
+  onSelected: (index: number) => void;
 };
 
-export const Tabs: FunctionComponent<TabsProps> = ({ tabs }) => {
+export const Tabs: FunctionComponent<TabsProps> = ({ tabs, onSelected }) => {
 
   const [ state, setState ] = useState(0);
 
   const handleTabClick = (index: number) => {
     setState(index);
+    onSelected(index);
   };
 
   return(

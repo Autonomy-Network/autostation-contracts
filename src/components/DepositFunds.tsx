@@ -22,18 +22,15 @@ function initialState(): FundsState {
 	};
 }
 
-
-interface ExecuteSelectorProps {
-	edit: boolean;
+interface DepositFundsProps {
 	network: Network;
-	onSubmit: (tx?: PopulatedTransaction) => void;
 };
 
 // TODO: ALLOW TO CHANGE FUNDS ROUTER DEPENDING ON NETWORK
 // TODO: VALIDITY CHECKERS
-export const DepositFunds: FunctionComponent<ExecuteSelectorProps> = ({ network, onSubmit }) => {
+export const DepositFunds: FunctionComponent<DepositFundsProps> = ({ network }) => {
 
-	const { state, depositETH, withdrawETH } = useContext(GlobalContext);
+	const { depositETH, withdrawETH } = useContext(GlobalContext);
 	const [ local, setLocal ] = useState<FundsState>(initialState());
 	const [ visibility, setVisibility ] = useState<string>("hidden");
 

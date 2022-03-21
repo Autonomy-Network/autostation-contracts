@@ -3,6 +3,8 @@ import { createContext, useEffect, useState } from 'react';
 import { Signer } from '@ethersproject/abstract-signer';
 
 import { connectMetaMask, silentMetaMaskInit, depositRequest, withdrawRequest } from '@autonomy-station/state/service';
+import { ExecuteState } from '@autonomy-station/components/ExecuteSelector';
+import { Interface } from 'ethers/lib/utils';
 
 // TODO: CHECK CORRECT NETWORK IS SELECTED ON THE SELECTOR
 
@@ -11,7 +13,18 @@ interface GlobalState {
 	signer?: Signer;
 	error: string;
 	network?: string;
+	contractData?: ExecuteState;
 };
+
+/* const initialFunctionState: ExecuteState = {
+		error: <></>,
+		loading: false,
+		autoFetch: true,
+		contract: {
+			address: '',
+			name: '',
+		},
+}; */
 
 const initialState: GlobalState = {
 	loading: false,
@@ -26,10 +39,13 @@ export interface IGlobalContext {
 	login: () => void;
 	depositETH: (amount: number) => void;
 	withdrawETH: (amount: number) => void;
+	// executeTx: (user: string, fcnAddress: string, fcnAbi: Interface, fcnData?: string , start: any, period: any, )
+
 };
 
 export const GlobalContext = createContext<IGlobalContext>({
 	state: initialState,
+
 	login: () => {},
 	depositETH: (amount: number) => {},
 	withdrawETH: (amount: number) => {},
@@ -39,6 +55,7 @@ export const GlobalContext = createContext<IGlobalContext>({
 export const useGlobalState = (): IGlobalContext => {
 
 	const [ state, setState ] = useState(initialState);
+	// const [ selectedFunction, setSelectedFunction] = useState('');
 
 	useEffect(() => {
 		const init = async () => {
