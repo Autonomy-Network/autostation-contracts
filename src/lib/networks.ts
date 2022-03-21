@@ -1,46 +1,95 @@
 
-// TODO USE CHAIN ID INSTEAD OF NETWORK NAME
-export const networks = [
-  'homestead',
-  'rinkeby',
-  'ropsten',
-  'avax',
-  'bsc',
-  'fuji'
-] as const;
+import { getDefaultProvider } from 'ethers';
 
+
+export const networks = [1, 3, 4, 56, 43113, 43114] as const;
 export type Network = typeof networks[number];
 
-export function isNetworkSupported(chainId: any): chainId is Network {
+type NetworkConfigRecord = Record<Network, string>;
+
+
+export const networkNames: NetworkConfigRecord = {
+  1: 'Ethereum Mainnet',
+  3: 'Ropsten',
+  4: 'Rinkeby',
+
+  56: 'BSC Mainnet',
+  43113: 'Avalanche Fuji Testnet',
+  43114: 'Avalanche Mainnet',
+};
+
+export function isNetworkSupported(chainId: number): chainId is Network {
   return networks.includes(chainId as any);
 }
 
-export const DEFAULT_NETWORK: Network = 'fuji';
-
-
-type EtherscanConfigRecord = Record<Network, string>;
+export const DEFAULT_NETWORK: Network = 43113;
 
 interface EtherscanConfig {
-  endpoints: EtherscanConfigRecord;
-  apiKey: EtherscanConfigRecord;
+  endpoints: NetworkConfigRecord;
+  apiKey: NetworkConfigRecord;
+  explorer: NetworkConfigRecord;
 };
 
+
+// ? MOST OF NETWORK INFO CAN BE COPIED FROM: https://chainid.network/chains.json
+
+// ! URLs SHOULD NEVER END WITH A `/` !!!
 export const etherscanConfig: EtherscanConfig = {
   endpoints: {
-    homestead: 'https://api.etherscan.io',
-    rinkeby: 'https://api-rinkeby.etherscan.io',
-    ropsten: 'https://api-ropsten.etherscan.io',
-    avax: 'https://api.snowtrace.io',
-    bsc: 'https://api.bscscan.com/',
-    fuji: 'https://api-testnet.snowtrace.io/'
-
+    1: 'https://api.etherscan.io',
+    4: 'https://api-rinkeby.etherscan.io',
+    3: 'https://api-ropsten.etherscan.io',
+    43114: 'https://api.snowtrace.io',
+    56: 'https://api.bscscan.com',
+    43113: 'https://api-testnet.snowtrace.io'
   },
   apiKey: {
-    homestead: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    rinkeby: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    ropsten: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    avax: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    bsc: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    fuji: process.env.REACT_APP_ETHERSCAN_API_KEY!
+    1: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    4: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    3: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    43114: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    56: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    43113: process.env.REACT_APP_ETHERSCAN_API_KEY!
+  },
+  explorer: {
+    1: 'https://etherscan.io',
+    4: 'https://rinkeby.etherscan.io',
+    3: 'https://ropsten.etherscan.io',
+    43114: 'https://snowtrace.io',
+    56: 'https://bscscan.com',
+    43113: 'https://testnet.snowtrace.io'
   }
 };
+
+export const chainRpcUrls: NetworkConfigRecord = {
+  // ! default networks are already included in MetaMask, those values will never be used
+  1: '',
+  4: '',
+  3: '',
+
+  // for extra network, we might provide the user RPC urls to add to MetaMask
+  43114: 'https://api.avax.network/ext/bc/C/rpc',
+  56: 'https://bsc-dataseed1.binance.org',
+  43113: 'https://api.avax-test.network/ext/bc/C/rpc',
+};
+
+export const chainCurrency: Record<Network, { name: string, symbol: string }> = {
+  // ! default networks are already included in MetaMask, those values will never be used
+  1: { name: '', symbol: '' },
+  4: { name: '', symbol: '' },
+  3: { name: '', symbol: '' },
+
+  // for extra network, we might provide the user currency info to add to MetaMask
+  43114: { name: 'Avalanche', symbol: 'AVAX' },
+  56: { name: 'Binance Chain Native Token', symbol: 'BNB' },
+  43113: { name: 'Avalanche', symbol: 'AVAX' },
+};
+
+
+export function getProvider(network: Network) {
+  // ethers supports default networks
+  if (network === 1 || network === 3 || network === 4) return getDefaultProvider(network);
+
+  // for custom networks we must specify the rpc url
+  return getDefaultProvider(chainRpcUrls[network]);
+}

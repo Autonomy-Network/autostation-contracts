@@ -49,3 +49,8 @@ export async function getContractInfo(network: Network, address: string): Promis
 
   return { ...result, ABI: contractInterface };
 }
+
+export function getExplorerLink(network: Network, hash: string) {
+  const baseUrl = etherscanConfig.explorer[network];
+  return `${baseUrl}/tx/${hash}`;
+}
