@@ -16,23 +16,66 @@ import timeConditions from '@autonomy-station/abis/timeConditions.json';
 // TODO: MOVE ADDRESS TO A GLOBAL FILE
 const TIME_CONDITIONS = '0xCA26b5976E512E6d8eE9056d94EDe8Fd3beaffFD';
 
+
+function formatDate(timestamp: number) {
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear().toString().padStart(4, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // months are 0 indexed
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  return `${month}/${day}/${year} ${hours}:${minutes}`;
+}
+
+function formatPeriod(period: number) {
+  const ONE_MINUTE = 60;
+  const ONE_HOUR = ONE_MINUTE * 60;
+  const ONE_DAY = ONE_HOUR * 24;
+
+  let days = '';
+  let hours = '';
+  let minutes = '';
+  let seconds = period;
+
+  if (seconds / ONE_DAY > 0) {
+    const amount = Math.floor(seconds / ONE_DAY);
+    days = `${amount} day${amount !== 1 ? 's' : ''}`;
+    seconds %= ONE_DAY;
+  }
+
+  if (seconds / ONE_HOUR > 0) {
+    const amount = Math.floor(seconds / ONE_HOUR);
+    hours = `${amount} hour${amount !== 1 ? 's' : ''}`;
+    seconds %= ONE_HOUR;
+  }
+
+  if (seconds / ONE_MINUTE > 0) {
+    const amount = Math.floor(seconds / ONE_MINUTE);
+    minutes = `${amount} minute${amount !== 1 ? 's' : ''}`;
+    seconds %= ONE_MINUTE;
+  }
+
+  return `${days} ${hours} ${minutes} ${seconds} second${seconds !== 1 ? 's' : ''}`;
+}
+
+
 interface PresetState {
   period?: number;
   start?: number;
   timeAfter?: number;
   timeBefore?: number;
+  summary: boolean;
 };
 
 function initialState(): PresetState {
-  const date = new Date();
-  const defaultDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-  const defaultTime = `${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}`;
-
+  const timestamp = new Date().getTime() / 1000;
   return {
     period: 0,
-    start:  new Date(`${defaultDate} ${defaultTime}`).getTime() / 1000,
-    timeAfter: new Date(`${defaultDate} ${defaultTime}`).getTime() / 1000,
-    timeBefore: new Date(`${defaultDate} ${defaultTime}`).getTime() / 1000,
+    start:  timestamp,
+    timeAfter: timestamp,
+    timeBefore: timestamp,
+    summary: false,
   };
 }
 
@@ -46,7 +89,7 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmi
 
   const wallet = useWallet();
 
-  const [selected, setSelected] = useState(0);
+  const [tabIndex, setTabIndex] = useState(0);
   const [state, setState] = useState<PresetState>(initialState());
 
   const handleClick = async() => {
@@ -64,44 +107,45 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmi
 		}
 
     // TODO: CALLDATA NEEDS TO GET AN EXTRA 2 INPUTS FROM THE USER, ethForCall and verifyUser - https://github.com/Autonomy-Network/autonomy-station/blob/0ce19546618da6a58bc886bba9bdd712c91672ff/contracts/FundsRouter.sol#L94
-    let timeContract = new ethers.Contract(TIME_CONDITIONS, timeConditions);
+    const timeContract = new ethers.Contract(TIME_CONDITIONS, timeConditions);
     
     // TODO: FIND A BETTER WAY TO DIFFERENTIATE BETWEEN TABS - FOR FUTURE WE NEED TO BE ABLE TO ADD MORE TABS
-    if (selected === 0 || selected === undefined) {
+    if (tabIndex === 0) {
+      
       // Recurring
-      let callId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-      let recurring =  await timeContract.populateTransaction.everyTimePeriod(userAddress, callId, state.start, state.period);
-      let callData = [TIME_CONDITIONS, recurring.data, 0, true]
+      const callId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      const recurring = await timeContract.populateTransaction.everyTimePeriod(userAddress, callId, state.start, state.period);
+      const callData = [TIME_CONDITIONS, recurring.data, 0, true];
       onSubmit(recurring, TIME_CONDITIONS, callData);  
     } else {
+
       // one time
-      let oneTime =  await timeContract.populateTransaction.betweenTimes(state.timeAfter, (state.timeAfter ?? 0) + ((state.timeBefore ?? 0) - (state.timeAfter ?? 0)));
-      let callData = [TIME_CONDITIONS, oneTime.data, 0, false]
+      const oneTime = await timeContract.populateTransaction.betweenTimes(state.timeAfter, (state.timeAfter ?? 0) + ((state.timeBefore ?? 0) - (state.timeAfter ?? 0)));
+      const callData = [TIME_CONDITIONS, oneTime.data, 0, false];
       onSubmit(oneTime, TIME_CONDITIONS, callData);  
     }
+    setState(s => ({ ...s, summary: true }));
   };
 
   // TODO: DO SOME VALIDATION TO MAKE SURE USER IS SELECTING CORRECT TIMES
   const handlePeriodChange = (period?: number) => {
-    setState({ ...state,  period});
+    setState(s => ({ ...s, period}));
   };
 
   const handleStartChange = (start?: number) => {
-    setState({ ...state,  start});
-    return state;
+    setState(s => ({ ...s, start}));
   };
 
   const handleAfterChange = (timeAfter?: number) => {
-    setState({ ...state, timeAfter});
+    setState(s => ({ ...s, timeAfter}));
   };
 
   const handleBeforeChange = (timeBefore?: number) => {
-    setState({ ...state, timeBefore});
+    setState(s => ({ ...s, timeBefore}));
   };
 
-
   const handleSelected = (index: number) => {
-    setSelected(index);
+    setTabIndex(index);
   };
 
   // TODO: NEXT BUTTON SHOULD GIVE USER FEEDBACK THAT IT HAS BEEN PRESSED
@@ -110,33 +154,56 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmi
       
       <h3 className="text-xl font-semibold">Conditions</h3>
 
-      <Tabs
-        tabs={[
-          {
-            title: 'Recurring',
-            content: <>
-              <p className="my-2">Execute transaction at:</p>
-              <DateInput onChange={handleStartChange} key="recurring"/>
-              <p className="my-2 mt-4">and then every:</p>
-              <RecurringInput onChange={handlePeriodChange}/>
-            </>
-          },
-          {
-            title: 'One time',
-            content: <>
-              <p className="my-2">Execute transaction after:</p>
-              <DateInput onChange={handleAfterChange} key="oneTimeStart"/>
-              <p className="my-2">Execute transaction before:</p>
-              <DateInput onChange={handleBeforeChange} key="oneTimeEnd"/>
-            </>
-          },
-        ]}
-        onSelected={handleSelected}
-      />
+      {
+        !state.summary
+          ? <>
+              <Tabs
+                tabs={[
+                  {
+                    title: 'Recurring',
+                    content: <>
+                      <p className="my-2">Execute transaction at:</p>
+                      <DateInput onChange={handleStartChange} key="recurring"/>
+                      <p className="my-2 mt-4">and then every:</p>
+                      <RecurringInput onChange={handlePeriodChange}/>
+                    </>
+                  },
+                  {
+                    title: 'One time',
+                    content: <>
+                      <p className="my-2">Execute transaction after:</p>
+                      <DateInput onChange={handleAfterChange} key="oneTimeStart"/>
+                      <p className="my-2">Execute transaction before:</p>
+                      <DateInput onChange={handleBeforeChange} key="oneTimeEnd"/>
+                    </>
+                  },
+                ]}
+                onSelected={handleSelected}
+              />
 
-      <span className="flex flex-row justify-center">
-        <Button onClick={handleClick}>Next</Button>
-      </span>
+              <div className="flex flex-row justify-center">
+                <Button onClick={handleClick}>Next</Button>
+              </div>
+            </>
+          : ''
+      }
+
+      {
+        state.summary && tabIndex === 0
+        ? <>
+            <p>Execute transaction at {formatDate(state.start!)} and after that, every {formatPeriod(state.period!)}.</p>
+          </>
+        : ''
+      }
+
+      {
+        state.summary && tabIndex === 1
+        ? <>
+            <p>Execute transaction as soon as possible after {formatDate(state.timeAfter!)}, and prevent it to be executed after {formatDate(state.timeBefore!)}</p>
+          </>
+        : ''
+      }
+      
     </Card>
   );
 };
