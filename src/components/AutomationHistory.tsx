@@ -55,7 +55,8 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 					hashed: await connectRegistry.getHashedReq(request.get('uid')),
 				}
 			}));
-			let hashFilter = requestMap.filter(x => x.hashed !== "0x0000000000000000000000000000000000000000000000000000000000000000");
+			let hashFilter = requestMap.filter(x => x.hashed !== "0x0000000000000000000000000000000000000000000000000000000000000000" &&
+				x.target === "0x887fde9e7f1bdb3a862a43e2e028c3ceef51c170");
 			setAutomations(hashFilter);
 		}
 		const interval = setInterval(init, 2000)
@@ -85,12 +86,12 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 						<div className="flex flex-row justify-between" key={index}>{
 							!!auto.label
 								? <>
-										<Card className="w-11/12 mt-2 font-semibold text-center border border-autonomyPrimary500 mb-1">{auto.label}</Card>
-										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 text-l border border-autonomyPrimary500">Cancel</Button>			
+										<Card className="w-11/12 mt-2 font-semibold text-center border border-white mb-1">{auto.label}</Card>
+										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 text-l border border-white">Cancel</Button>			
 									</>
 								: <>
-										<Card className="w-11/12 mt-2 font-semibold text-center border border-autonomyPrimary500 mb-1">{auto.tx_hash.substring(0,10)}</Card>
-										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 border border-autonomyPrimary500">Cancel</Button>			
+										<Card className="w-11/12 mt-2 font-semibold text-center border border-white mb-1">{auto.tx_hash.substring(0,10)}</Card>
+										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 border border-white">Cancel</Button>			
 									</>
 						}</div>
 					)
