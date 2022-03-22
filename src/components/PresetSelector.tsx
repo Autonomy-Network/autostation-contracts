@@ -148,7 +148,7 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmi
     setTabIndex(index);
   };
 
-  // TODO: NEXT BUTTON SHOULD GIVE USER FEEDBACK THAT IT HAS BEEN PRESSED
+
   return(
     <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8">
       
