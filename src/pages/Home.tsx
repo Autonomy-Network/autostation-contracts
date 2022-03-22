@@ -9,8 +9,8 @@ import { Button } from '@autonomy-station/ui/Button';
 import registryAbi from '@autonomy-station/abis/registry.json';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
 import fundsRouter from '@autonomy-station/abis/fundsRouter.json';
+import { PresetSelector } from '@autonomy-station/components/PresetSelector';
 import { ExecuteSelector} from '@autonomy-station/components/ExecuteSelector';
-import { ConditionSelector } from '@autonomy-station/components/ConditionSelector';
 
 
 // TODO: MOVE ADDRESSES TO A GLOBAL FILE
@@ -33,25 +33,25 @@ export const Home: FunctionComponent<HomeProps> = props => {
   
 
 
-  const handleExecuteSubmit = (tx?: PopulatedTransaction, address?: string, callData?: Array<any>) => {
-    setMultiState((prevState: Array<any>) => [...prevState, {tx, address, callData}]);
+  const handleExecuteSubmit = (tx?: PopulatedTransaction, address?: string, callData?: any[]) => {
+    setMultiState((prevState: any[]) => [...prevState, { tx, address, callData }]);
   }
 
-  const handleConditionSubmit = (tx?: PopulatedTransaction, address?: string, callData?: Array<any>) => {
-    setMultiState((prevState: Array<any>) => [...prevState, {tx, address, callData}]);
+  const handleConditionSubmit = (tx?: PopulatedTransaction, address?: string, callData?: any[]) => {
+    setMultiState((prevState: any[]) => [...prevState, { tx, address, callData }]);
   }
   
   // TODO: CONDITION LIST SHOULD BE LIMITED TO ONE PRE-DEFINED TIME CONDITION AND UNLIMITED CUSTOM CONDITIONS
   const handleAdd = (type: string) => {
     if (type === 'custom'){
-      setConditionList((prevState: Array<any>) => [...prevState, (<ExecuteSelector key={conditionList.length + 1} id={conditionList.length + 1} network={wallet.state.appNetwork} edit={true} onSubmit={handleExecuteSubmit} />)]);
+      setConditionList((prevState: any[]) => [...prevState, <ExecuteSelector key={conditionList.length + 1} id={conditionList.length + 1} network={wallet.state.appNetwork} edit={true} onSubmit={handleExecuteSubmit} />]);
     } else if (type === 'preset') {
-      setConditionList((prevState: Array<any>) => [...prevState, (<ConditionSelector key={conditionList.length + 1} id={conditionList.length + 1} params={['something']} onSubmit={handleConditionSubmit} />)]);
+      setConditionList((prevState: any[]) => [...prevState, <PresetSelector key={conditionList.length + 1} onSubmit={handleConditionSubmit} />]);
     }
   }
   // WISHLIST: ALLOW TO REMOVE ARBITRARY CARD.
     const handleRemove = () => {
-      setConditionList((prevState: Array<any>) => prevState.slice(0, prevState.length - 1));
+      setConditionList((prevState: any[]) => prevState.slice(0, prevState.length - 1));
   }
 
   const toggleChange = () => {
