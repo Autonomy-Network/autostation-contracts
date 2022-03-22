@@ -9,9 +9,7 @@ import { Button } from '@autonomy-station/ui/Button';
 import registryAbi from '@autonomy-station/abis/registry.json';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
 import fundsRouter from '@autonomy-station/abis/fundsRouter.json';
-import { DepositFunds } from '@autonomy-station/components/DepositFunds';
 import { ExecuteSelector} from '@autonomy-station/components/ExecuteSelector';
-import { AutomationHistory } from '@autonomy-station/components/AutomationHistory';
 import { ConditionSelector } from '@autonomy-station/components/ConditionSelector';
 
 
@@ -109,9 +107,6 @@ export const Home: FunctionComponent<HomeProps> = props => {
         <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automation Standards System</h1>
         <h2 className="mt-2 font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automate blockchain transactions with Autonomy Network</h2>
       </section>
-
-      <DepositFunds />
-      <AutomationHistory />
 
       {conditionList}
 
