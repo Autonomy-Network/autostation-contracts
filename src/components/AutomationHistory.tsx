@@ -1,5 +1,5 @@
 
-import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 
 import { BigNumber, ethers } from 'ethers';
 import { Card } from '@autonomy-station/ui/Card';
@@ -13,7 +13,7 @@ declare var window: any
 
 interface AutomationProps {};
 
-export const AutomationHistory: FunctionComponent<AutomationProps> = ({}) => {
+export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 
 	const wallet = useWallet();
 	const [ visibility, setVisibility ] = useState<string>('hidden');
@@ -69,15 +69,18 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = ({}) => {
 		return () => clearInterval(interval)
 	}, [visibility, wallet])
 
-	const handleCancel = useCallback(async (auto: any) => {
+	const handleCancel = async (auto: any) => {
 		const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 		const signer = provider.getSigner();
 		let registryContract = new ethers.Contract(AUTONOMY_REGISTRY, registryAbi);
 		const connectRegistry = registryContract.connect(signer);
-		let tx = await connectRegistry.cancelHashedReq(auto.id, [auto.user, auto.target, auto.referer,
-			auto.callData, auto.initEthSent, auto.ethForCall, auto.insertFeeAmount, auto.verifyUser, auto.payWithAUTO, auto.isAlive]);
-		let receipt = await tx.wait(); 
-	}, [automations]);
+		let tx = await connectRegistry.cancelHashedReq(auto.id, [
+			auto.user, auto.target, auto.referer,
+			auto.callData, auto.initEthSent, auto.ethForCall,
+			auto.insertFeeAmount, auto.verifyUser, auto.payWithAUTO, auto.isAlive
+		]);
+		await tx.wait(); 
+	};
 
 	return(
 		<Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">

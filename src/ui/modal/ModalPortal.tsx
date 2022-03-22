@@ -1,5 +1,5 @@
 
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 
 import { createPortal } from 'react-dom';
 

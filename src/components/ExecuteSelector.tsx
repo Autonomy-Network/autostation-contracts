@@ -1,5 +1,5 @@
 // TODO: RENAME TO CUSTOMSELECTOR
-import React, { ChangeEvent, FunctionComponent, ReactFragment, useEffect, useState, useMemo } from 'react';
+import React, { ChangeEvent, FunctionComponent, ReactFragment, useEffect, useState } from 'react';
 
 import { Contract, PopulatedTransaction } from 'ethers';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
