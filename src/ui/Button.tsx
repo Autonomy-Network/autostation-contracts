@@ -3,8 +3,9 @@ import React, { FunctionComponent } from 'react';
 
 
 const variants = {
-  primary: 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-700 hover:shadow-md',
-  disabled: 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 cursor-not-allowed',
+  primary: 'bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500',
+  // 'bg-gradient-to-r from-autonomySecondary500 to-autonomySecondary500 text-white hover:shadow-md border border-autonomyPrimary500 hover:bg-autonomyPrimary500',
+  disabled: 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 cursor-not-allowed border-2 border-autonomyPrimary500',
 };
 
 type Variant = keyof typeof variants;

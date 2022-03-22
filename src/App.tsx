@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 
 import { Contract, PopulatedTransaction, providers } from 'ethers';
 
@@ -7,10 +7,13 @@ import { Button } from '@autonomy-station/ui/Button';
 import registryAbi from '@autonomy-station/abis/registry.json';
 import fundsRouter from '@autonomy-station/abis/fundsRouter.json';
 import { DepositFunds } from '@autonomy-station/components/DepositFunds';
+import { AutomationHistory } from '@autonomy-station/components/AutomationHistory';
 import { ExecuteSelector} from '@autonomy-station/components/ExecuteSelector';
 import { WalletProvider, useWallet } from '@autonomy-station/hooks/use-wallet';
 import { NetworkSelector } from '@autonomy-station/components/NetworkSelector';
 import { ConditionSelector } from '@autonomy-station/components/ConditionSelector';
+import { Input } from '@autonomy-station/ui/Input';
+import Moralis from 'moralis';
 
 
 // TODO: MOVE ADDRESSES TO A GLOBAL FILE
@@ -28,6 +31,8 @@ function App() {
   const [conditionList, setConditionList] = useState<any>([]);
   const [multiState, setMultiState] = useState<any>([]);
   const [recurring, setRecurring] = useState<boolean>(true);
+  const [label, setLabel] = useState<string | number>('');
+  
 
 
   const handleExecuteSubmit = (tx?: PopulatedTransaction, address?: string, callData?: Array<any>) => {
@@ -74,23 +79,44 @@ const handleClick = async() => {
   const connectRegistry = registry.connect(signer);
   let tx = await connectRegistry.newReq(FUNDS_ROUTER, ZERO_ADDRESS, fundsRouting.data, 0, true, true, recurring);  
   const receipt = await tx.wait();
+  // Moralis 
+
+    const serverURL = 'https://i4iy3hg46tts.usemoralis.com:2053/server';
+    const key = 'XPlKsihjzHmCZz4ZspXUqLZf0uow9vU9h0KR0DdQ';
+    Moralis.initialize(key);
+    Moralis.serverURL = serverURL;
+    const fujiQuery = new Moralis.Query('RegistryRequests');
+    const idQuery = new Moralis.Query('RegistryRequests');
+    fujiQuery.equalTo('user', userAddress.toLocaleLowerCase());
+    idQuery.equalTo('transaction_hash', receipt.transactionHash);
+    let queryRequests = Moralis.Query.and(fujiQuery, idQuery);
+    let registryRequests = await queryRequests.find();
+
+    let request =  registryRequests[registryRequests.length - 1];
+    request.set('label', label);
+    request.save();
 };
+
+const handleLabelChange = (event: ChangeEvent<HTMLInputElement>) => {
+  setLabel(event.target.value);
+}
 
 // TODO FIX THE BUTTON LAYOUT PRESET, CUSTOM AND REMOVE
   return (
     <WalletProvider>
-      <main className="min-h-full flex flex-col gap-4 items-center text-stone-600 bg-gradient-to-b from-stone-100 to-stone-300">
+      <main className="min-h-full flex flex-col gap-4 items-center text-autonomyBlack bg-gradient-to-br from-autonomyPrimary500 to-autonomySecondary500 ">
         
         <div className="fixed top-1 right-4">
           <NetworkSelector />
         </div>
 
         <section className="mt-32 mb-16 text-center">
-          <h1 className="text-5xl font-semibold mb-4">Auto Station</h1>
-          <h2 className="font-semibold">Automate blockchain transactions with Autonomy Network</h2>
+          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automation Standards System</h1>
+          <h2 className="mt-2 font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automate blockchain transactions with Autonomy Network</h2>
         </section>
 
         <DepositFunds />
+        <AutomationHistory />
 
         {conditionList}
 
@@ -107,6 +133,7 @@ const handleClick = async() => {
             Recurring
           </label>
         </span>
+        <Input onChange={handleLabelChange} value={label} type="text" className="w-48">Name your function</Input>
 
       </main>
       <div id="modal-container" className="fixed top-0 left-0 z-10 w-full h-full pointer-events-none" ></div>
