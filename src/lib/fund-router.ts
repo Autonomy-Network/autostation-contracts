@@ -1,7 +1,6 @@
 
-import { constants } from 'ethers';
-import { parseEther } from '@ethersproject/units';
-import { Contract } from '@ethersproject/contracts';
+import { parseEther } from 'ethers/lib/utils';
+import { BigNumber, constants, Contract } from 'ethers';
 
 import fundsRouterABI from '@autonomy-station/abis/fundsRouter.json';
 import { getProvider, Network } from '@autonomy-station/lib/networks';
@@ -25,6 +24,10 @@ function getInstance(network: Network) {
 	return _fundsRouter.attach(address).connect(provider);
 }
 
+export async function getBalances(network: Network, userAddress: string): Promise<BigNumber> {
+	const fundsRouter = getInstance(network);
+	return fundsRouter.balances(userAddress);
+}
 
 export async function depositRequest(network: Network, amount: number, userAddress: string) {
 	const fundsRouter = getInstance(network);

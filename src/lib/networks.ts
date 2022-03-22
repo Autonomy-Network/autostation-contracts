@@ -75,9 +75,9 @@ export const chainRpcUrls: NetworkConfigRecord = {
 
 export const chainCurrency: Record<Network, { name: string, symbol: string }> = {
   // ! default networks are already included in MetaMask, those values will never be used
-  1: { name: '', symbol: '' },
-  4: { name: '', symbol: '' },
-  3: { name: '', symbol: '' },
+  1: { name: 'Ether', symbol: 'ETH' },
+  4: { name: 'Rinkeby Ether', symbol: 'ETH' },
+  3: { name: 'Ropsten Ether', symbol: 'ETH' },
 
   // for extra network, we might provide the user currency info to add to MetaMask
   43114: { name: 'Avalanche', symbol: 'AVAX' },
