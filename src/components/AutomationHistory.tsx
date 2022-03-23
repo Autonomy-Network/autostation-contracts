@@ -32,6 +32,7 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 			const fujiQuery = new Moralis.Query('RegistryRequests');
 			fujiQuery.equalTo('user', wallet.state.address.toLocaleLowerCase());
 			let queryRequests = Moralis.Query.and(fujiQuery);
+			queryRequests.limit(30000);
 			let registryRequests = await queryRequests.find();
 			const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 			const signer = provider.getSigner();
