@@ -24,7 +24,7 @@ export const Select = <T,>({ options, onSelect, value, placeholder, className = 
     <select
       value={valueIndex}
       onChange={handleChange}
-      className={`cursor-pointer mt-6 px-4 py-4 bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 shadow-inner p-2 rounded-lg border border-white ${className}`}
+      className={`cursor-pointer mt-6 px-4 py-3 bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 shadow-inner p-2 rounded-lg border border-white ${className}`}
     >
       { !!placeholder ? <option>{placeholder}</option> : '' }
       {
