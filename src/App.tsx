@@ -16,8 +16,8 @@ function App() {
     <WalletProvider>
       <BrowserRouter>
         <nav className="absolute items-center flex flex-row mt-8 ml-4">
-          <Link to="/" className="font-semibold text-lg rounded-lg text-autonomyBlack bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 px-8 py-4">Station</Link>
-          <Link to="/manage" className="font-semibold text-lg ml-2 rounded-lg text-autonomyBlack bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 px-8 py-4">Manage</Link>
+          <Link to="/" className="font-semibold rounded-lg text-autonomyBlack bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 px-6 py-3">Station</Link>
+          <Link to="/manage" className="font-semibold  ml-2 rounded-lg text-autonomyBlack bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 px-6 py-3">Manage</Link>
         </nav>
 
         <div className="fixed top-1 right-4">
