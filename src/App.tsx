@@ -7,6 +7,7 @@ import { Home } from '@autonomy-station/pages/Home';
 import { Manage } from '@autonomy-station/pages/Manage';
 import { WalletProvider } from '@autonomy-station/hooks/use-wallet';
 import { NetworkSelector } from '@autonomy-station/components/NetworkSelector';
+import autonomyLogo from '@autonomy-station/autonomyLogo.png'
 
 
 function App() {
@@ -14,10 +15,9 @@ function App() {
   return (
     <WalletProvider>
       <BrowserRouter>
-
-        <nav className="absolute top-0 left-0 flex flex-row">
-          <Link to="/" className="font-semibold text-autonomyAcent500 hover:bg-autonomyPrimary200 hover:text-autonomyPrimary500 px-4 py-2">Home</Link>
-          <Link to="/manage" className="font-semibold text-autonomyAcent500 hover:bg-autonomyPrimary200 hover:text-autonomyPrimary500 px-4 py-2">Manage</Link>
+        <nav className="absolute items-center flex flex-row mt-8 ml-4">
+          <Link to="/" className="font-semibold text-2xl rounded-lg text-autonomyBlack bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 px-8 py-4">Station</Link>
+          <Link to="/manage" className="font-semibold text-2xl ml-2 rounded-lg text-autonomyBlack bg-gradient-to-r from-autonomyAcent500 to-autonomySecondary500 hover:from-pink-400 hover:to-autonomyAcent500 px-8 py-4">Manage</Link>
         </nav>
 
         <div className="fixed top-1 right-4">

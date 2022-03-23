@@ -96,21 +96,24 @@ export const DepositFunds: FunctionComponent<DepositFundsProps> = props => {
 			{
 				!!wallet.state.address && state.deposit
 					? <>
-							<p>Deposit balance: {state.deposit} { chainCurrency[wallet.state.appNetwork].symbol }</p>
+							<span className='flex flex-row space-x-2'>
+							<p className='font-semibold'>Deposit balance:</p>
+							<p className='font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500'>{state.deposit} { chainCurrency[wallet.state.appNetwork].symbol }</p>
+							</span>
 						</>
 					: ''
 			}
 
 			<div>
-				<p>Manage your deposit:</p>
-				<div className="flex flex-row items-center justify-between">
-					<Input type="number" value={state.amount} onChange={handleFundsChange} className="w-1/2 mt-2">0</Input>
-					<Button onClick={handleDeposit} className="inline-block ml-4">Deposit</Button>
-					<Button onClick={handleWithdraw} className="inline-block ml-4">Withdraw</Button>
+				<p className='font-semibold'>Manage your deposit:</p>
+				<div className="flex flex-row items-center space-x-4">
+					<Input type="number" value={state.amount} onChange={handleFundsChange} className="w-1/2 mt-2 h-16 text-center font-semibold">0</Input>
+					<Button onClick={handleDeposit} className="inline-block ml-4 mt-2 border-2 border-white">Deposit</Button>
+					<Button onClick={handleWithdraw} className="inline-block ml-4 mt-2 border-2 border-white">Withdraw</Button>
 				</div>
 			</div>
 
-			<p className="text-center mr-1 mt-2 text-sm text-autonomyPrimary500">(Only native chain currency allowed currently)</p>
+			<p className="text-center mr-1 mt-2 text-sm text-autonomyBlack font-semibold">(Only native chain currency allowed currently)</p>
 		</Card>
 	);
 };

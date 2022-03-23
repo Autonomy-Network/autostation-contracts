@@ -15,6 +15,7 @@ import { InputAbi } from '@autonomy-station/components/InputAbi';
 import { getContractInfo } from '@autonomy-station/lib/etherscan';
 import { InputFunctionParams } from '@autonomy-station/components/InputFunctionParams';
 import { SelectContractFunction } from '@autonomy-station/components/SelectContractFunction';
+import { Button } from '@autonomy-station/ui/Button';
 
 
 export interface ExecuteState {
@@ -59,6 +60,10 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ id, e
 
   const [ state, setState ] = useState<ExecuteState>(initialState());
   const [ editor, setEditor ] = useState<boolean>(edit);
+  const [ advanced, setAdvanced] = useState<boolean>(false);
+  const [ visibility, setVisibility ] = useState<string>('hidden');
+  const [ verify, setVerify ] = useState<boolean>(false);
+  const [ fee, setFee ] = useState<number>(0);
 
   const handleContractAddressChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -106,10 +111,30 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ id, e
     const tx = await state.contract.instance!.populateTransaction[fnName](...inputs);
     // TODO: 0 and false inputs here might need to be changed depending on contract
     // TODO: CALLDATA NEEDS TO GET AN EXTRA 2 INPUTS FROM THE USER, ethForCall and verifyUser - https://github.com/Autonomy-Network/autonomy-station/blob/0ce19546618da6a58bc886bba9bdd712c91672ff/contracts/FundsRouter.sol#L94
-    let callData = [fnAddress, tx.data, 0, false];
+    let callData = [fnAddress, tx.data, fee, verify];
     onSubmit(tx, fnAddress, callData);
     setEditor(false);
   };
+
+  const toggleChange = () => {
+    setAdvanced(!advanced);
+    if(!!visibility){
+			setVisibility('');
+		} else {
+			setVisibility('hidden');
+		}
+  };
+
+  const handleVerify = () => {
+    setVerify(true);
+  };
+
+  const handleFee = () => {
+    // TODO: HANDLE FEE 
+    setFee(0);
+  };
+
+
   // TODO: TEST THAT EDITING WORKS FINE
   const handleEdit = () => {
     setEditor(true);
@@ -118,19 +143,22 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ id, e
 
   return(
       <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
-        <h3 className="text-xl font-semibold text-center ">Smart contract automation {id}</h3>
+        <div className='grid grid-cols-3 gap-4 place-items-end'>
+          <h3 className="text-xl font-semibold col-start-2 col-end-2">Custom Automation</h3>
+          <h3 className="text-xl font-semibold col-start-3 col-end-3">{id}</h3>
+        </div>
         {
           editor
             ? <>
                 {/* ------------
                     ADDRESS
                 ------------ */}
-                <p>Contract address to automate:</p>
+                <p className='font-semibold'>Contract address to automate:</p>
                 <div>
                   <Input type="text" value={state.contract.address} onChange={handleContractAddressChange} className="w-full">0x...</Input>
                   <span className="flex flex-row justify-end">
-                    <p className="inline-block mr-1 text-sm text-stone-400">Fetch contract ABI automatically</p>
-                    <input className="mt-1" type="checkbox" checked={state.autoFetch} onChange={handleAutoFetchChange} />
+                    <p className="inline-block mr-1 text-sm mt-1 text-autonomyBlack font-semibold">Fetch contract ABI automatically</p>
+                    <input className="mt-2" type="checkbox" checked={state.autoFetch} onChange={handleAutoFetchChange} />
                   </span>
                 </div>
 
@@ -161,7 +189,18 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ id, e
                     ? <>
                         <p><strong>Contract</strong>: {state.contract.name ?? 'Unknown'}</p>
                         <SelectContractFunction abi={state.contract.abi} onSelect={handleSelectedFunctionChange} />
-
+                        <span className="flex flex-row justify-end">
+                          <p className="inline-block mr-1 text-sm mt-1 text-autonomyBlack font-semibold">Advanced settings</p>
+                          <input className="mt-2 h-4" type="checkbox" checked={advanced} onChange={toggleChange} />
+                        </span>
+                        <div className={visibility}>
+                          <span className="flex flex-row justify-end">
+                            <p className="inline-block mr-1 text-sm mt-1 text-autonomyPrimary500">Verify User</p>
+                            <input className="mt-2" type="checkbox" checked={advanced} onChange={handleVerify} />
+                            <p className="inline-block mr-1 text-sm mt-1 ml-2 text-autonomyPrimary500">Fee Amount</p>
+                            <input className="w-1/12 rounded-lg" type="number" checked={advanced} onChange={handleFee} value="0" placeholder="00"/>
+                          </span>
+                        </div>
                         {
                           !!state.contract.selectedFunction
                             ? <>

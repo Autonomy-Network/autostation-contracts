@@ -83,9 +83,10 @@ function initialState(): PresetState {
 interface PresetSelectorProps {
   // TODO: BETTER TYPE CHECK FOR CALLDATA - POTENTIALLY REMOVE TX AND ADDRESS
   onSubmit: (tx: PopulatedTransaction, address: string, callData: any[]) => void;
+  id: number;
 };
 
-export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmit }) => {
+export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmit, id }) => {
 
   const wallet = useWallet();
 
@@ -152,7 +153,10 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmi
   return(
     <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8">
       
-      <h3 className="text-xl font-semibold">Conditions</h3>
+      <div className='grid grid-cols-3 gap-4 place-items-end'>
+          <h3 className="text-xl font-semibold col-start-2 col-end-2">Preset Automation</h3>
+          <h3 className="text-xl font-semibold col-start-3 col-end-3">{id}</h3>
+      </div>
 
       {
         !state.summary
@@ -162,18 +166,18 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ onSubmi
                   {
                     title: 'Recurring',
                     content: <>
-                      <p className="my-2">Execute transaction at:</p>
+                      <p className="my-2 font-semibold">Execute transaction at:</p>
                       <DateInput onChange={handleStartChange} key="recurring"/>
-                      <p className="my-2 mt-4">and then every:</p>
+                      <p className="my-2 mt-4 font-semibold">and then every:</p>
                       <RecurringInput onChange={handlePeriodChange}/>
                     </>
                   },
                   {
                     title: 'One time',
                     content: <>
-                      <p className="my-2">Execute transaction after:</p>
+                      <p className="my-2 font-semibold">Execute transaction after:</p>
                       <DateInput onChange={handleAfterChange} key="oneTimeStart"/>
-                      <p className="my-2">Execute transaction before:</p>
+                      <p className="my-2 font-semibold">Execute transaction before:</p>
                       <DateInput onChange={handleBeforeChange} key="oneTimeEnd"/>
                     </>
                   },

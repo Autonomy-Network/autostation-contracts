@@ -33,9 +33,9 @@ export const Tabs: FunctionComponent<TabsProps> = ({ tabs, onSelected }) => {
                   <div
                     key={index}
                     onClick={() => handleTabClick(index)}
-                    className={`border-stone-600 border-opacity-40 rounded-t-lg px-2 py-1 font-semibold ${ index === state ? 'border-x border-t' : 'border-b bg-stone-200 cursor-pointer hover:shadow-lg'}`}
+                    className={`border-stone-600 border-opacity-60 rounded-t-lg px-2 py-1 font-semibold ${ index === state ? 'border-x border-t' : 'border-b bg-gray-200 cursor-pointer hover:shadow-lg'}`}
                   >
-                    {tab.title}
+                  <div className='text-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent400 to-autonomySecondary400'>{tab.title}</div>
                   </div>
                 )
               }

@@ -97,19 +97,19 @@ export const RecurringInput: FunctionComponent<RecurringInputProps> = ({ onChang
 		<div className="w-full">
 			<div className="flex flex-row flex-wrap gap-2">
 				<span className='flex flex-col'>
-					<label className="text-stone-400">Days</label>
+					<label className="text-stone-500">Days</label>
 					<Input onChange={handleDayChange} value={state.days} type="number" className="w-24">0</Input>
 				</span>
 				<span className='flex flex-col'>
-					<label className="text-stone-400">Hours</label>
+					<label className="text-stone-500">Hours</label>
 					<Input onChange={handleHourChange} value={state.hours} type="number" className="w-24">0</Input>
 				</span>
 				<span className='flex flex-col'>
-					<label className="text-stone-400">Minutes</label>
+					<label className="text-stone-500">Minutes</label>
 					<Input onChange={handleMinuteChange} value={state.minutes} type="number" className="w-24">0</Input>
 				</span>
 				<span className='flex flex-col'>
-					<label className="text-stone-400">Seconds</label>
+					<label className="text-stone-500">Seconds</label>
 					<Input onChange={handleSecondChange} value={state.seconds} type="number" className="w-24">0</Input>
 				</span>
 			</div>

@@ -30,8 +30,10 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 			Moralis.initialize(key);
 			Moralis.serverURL = serverURL;
 			const fujiQuery = new Moralis.Query('RegistryRequests');
-			fujiQuery.equalTo('user', wallet.state.address.toLocaleLowerCase());
-			let queryRequests = Moralis.Query.and(fujiQuery);
+			const targetQuery = new Moralis.Query('RegistryRequests');
+			fujiQuery.equalTo('user', wallet.state.address);
+			targetQuery.equalTo('target', "0x887fde9e7f1bdb3a862a43e2e028c3ceef51c170");
+			let queryRequests = Moralis.Query.and(fujiQuery, targetQuery);
 			queryRequests.limit(30000);
 			let registryRequests = await queryRequests.find();
 			const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
@@ -56,8 +58,7 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 					hashed: await connectRegistry.getHashedReq(request.get('uid')),
 				}
 			}));
-			let hashFilter = requestMap.filter(x => x.hashed !== "0x0000000000000000000000000000000000000000000000000000000000000000" &&
-				x.target === "0x887fde9e7f1bdb3a862a43e2e028c3ceef51c170");
+			let hashFilter = requestMap.filter(x => x.hashed !== "0x0000000000000000000000000000000000000000000000000000000000000000");
 			setAutomations(hashFilter);
 		}
 		const interval = setInterval(init, 2000)
@@ -88,11 +89,11 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 							!!auto.label
 								? <>
 										<Card className="w-11/12 mt-2 font-semibold text-center border border-white mb-1">{auto.label}</Card>
-										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 text-l border border-white">Cancel</Button>			
+										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 text-l border border-white font-extrabold">Cancel</Button>			
 									</>
 								: <>
 										<Card className="w-11/12 mt-2 font-semibold text-center border border-white mb-1">{auto.tx_hash.substring(0,10)}</Card>
-										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 border border-white">Cancel</Button>			
+										<Button onClick={() => handleCancel(auto)} className="w-1/4 mt-2 ml-2 border border-white font-extrabold">Cancel</Button>			
 									</>
 						}</div>
 					)
