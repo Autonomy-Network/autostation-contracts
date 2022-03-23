@@ -143,9 +143,9 @@ export const ExecuteSelector: FunctionComponent<ExecuteSelectorProps> = ({ id, e
 
   return(
       <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
-        <div className='grid grid-cols-3 gap-4 place-items-end'>
-          <h3 className="text-xl font-semibold col-start-2 col-end-2">Custom Automation</h3>
-          <h3 className="text-xl font-semibold col-start-3 col-end-3">{id}</h3>
+        <div className='flex flex-row relative justify-center'>
+          <h3 className="text-xl font-semibold ">Custom Automation</h3>
+          <h3 className="text-xl font-semibold absolute right-0 ">{id}</h3>
         </div>
         {
           editor

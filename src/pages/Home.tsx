@@ -119,7 +119,7 @@ export const Home: FunctionComponent<HomeProps> = props => {
     <main className="min-h-full flex flex-col gap-4 items-center text-autonomyBlack bg-gradient-to-br from-autonomyPrimary500 to-autonomySecondary500 ">
       
       <section className="mt-32 mb-16 text-center">
-        <h1 className="text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automation Station</h1>
+        <h1 className="text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automation Station</h1>
         <h2 className="mt-2 font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500">Automate blockchain transactions with Autonomy Network</h2>
       </section>
 
@@ -129,7 +129,7 @@ export const Home: FunctionComponent<HomeProps> = props => {
       </div>
       <label className="mr-1 mb-2 text-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent300 to-autonomySecondary300 font-semibold text-lg">Click add custom or add preset to start</label>
       <span className='flex flex-row space-x-2 justify-center mb-8'>
-        <Button className='-mt-4 h-16' onClick={() => handleAdd('preset')}>Add Preset</Button>
+        <Button className='-mt-4 h-12' onClick={() => handleAdd('preset')}>Add Preset</Button>
         <Button className='-mt-4' onClick={() => handleAdd('custom')}>Add Custom</Button>
         <Button className='-mt-4' onClick={handleRemove}>Remove Action</Button>
         <Button className='-mt-4 mr-4' onClick={handleVisibility}>Final Step</Button>
