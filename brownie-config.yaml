@@ -1,0 +1,9 @@
+hypothesis:
+    max_examples: 50
+
+compiler:
+  solc:
+    # version: 0.8.6
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.3.1"
+      - "@uniswap=Uniswap/v3-core@1.0.0"
