@@ -10,7 +10,7 @@ const addresses: Record<Network, string> = {
 	1: '', // TODO
 	3: '', // TODO
 	4: '', // TODO
-	56: '', // TODO
+	56: '0x99A5F6658C6D4c117998345F6BAE104bDeDB2e75',
 	43113: '0x887fDe9e7f1BDB3A862A43E2E028c3CEEF51c170',
 	43114: '', // TODO
 };

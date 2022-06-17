@@ -14,7 +14,7 @@ import { RecurringInput } from '@autonomy-station/ui/RecurringInput';
 import timeConditions from '@autonomy-station/abis/timeConditions.json';
 
 // TODO: MOVE ADDRESS TO A GLOBAL FILE
-const TIME_CONDITIONS = '0xCA26b5976E512E6d8eE9056d94EDe8Fd3beaffFD';
+const TIME_CONDITIONS =  '0xd95FbD28c64dA2b9861a11FEb0D8FaAd7457B8DE'; // '0xCA26b5976E512E6d8eE9056d94EDe8Fd3beaffFD';
 
 
 function formatDate(timestamp: number) {

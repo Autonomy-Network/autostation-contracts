@@ -10,7 +10,7 @@ import registryAbi from '@autonomy-station/abis/registry.json';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
 
 
-const AUTONOMY_REGISTRY  = '0xA0F25b796dD59E504077F87Caea1c0472Cd6b7b4';
+const AUTONOMY_REGISTRY  = '0x18d087F8D22D409D3CD366AF00BD7AeF0BF225Db'; // '0xA0F25b796dD59E504077F87Caea1c0472Cd6b7b4';
 declare var window: any
 
 
@@ -24,15 +24,15 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 	if (!wallet.state.signer) wallet.actions.connect();
 
 	useEffect(() => {
-		const serverURL = 'https://i4iy3hg46tts.usemoralis.com:2053/server';
-		const key = 'XPlKsihjzHmCZz4ZspXUqLZf0uow9vU9h0KR0DdQ';
+		const serverURL = 'https://bthi18qjnrml.usemoralis.com:2053/server'; // 'https://i4iy3hg46tts.usemoralis.com:2053/server';
+		const key = 'dpRncaRt3nboZFdVkl2zJUJoTs7MP6eCdvx7abtH'; // 'XPlKsihjzHmCZz4ZspXUqLZf0uow9vU9h0KR0DdQ';
 		async function init() {
 			Moralis.initialize(key);
 			Moralis.serverURL = serverURL;
 			const fujiQuery = new Moralis.Query('RegistryRequests');
 			const targetQuery = new Moralis.Query('RegistryRequests');
 			fujiQuery.equalTo('user', wallet.state.address);
-			targetQuery.equalTo('target', "0x887fde9e7f1bdb3a862a43e2e028c3ceef51c170");
+			targetQuery.equalTo('target', "0x99A5F6658C6D4c117998345F6BAE104bDeDB2e75"); // Target funds router
 			let queryRequests = Moralis.Query.and(fujiQuery, targetQuery);
 			queryRequests.limit(30000);
 			let registryRequests = await queryRequests.find();
