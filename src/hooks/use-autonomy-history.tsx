@@ -10,25 +10,22 @@ interface MoralisInfo {
   key: string;
 }
 
-// const serverURL = 'https://bthi18qjnrml.usemoralis.com:2053/server';
-// const key = 'dpRncaRt3nboZFdVkl2zJUJoTs7MP6eCdvx7abtH';
-
 export const MORALIS_INFO: Record<Network, MoralisInfo> = {
   56: {
-    serverURL: '',
-    key: ''
+    serverURL: 'https://bthi18qjnrml.usemoralis.com:2053/server',
+    key: 'dpRncaRt3nboZFdVkl2zJUJoTs7MP6eCdvx7abtH'
   },
   97: {
-    serverURL: '',
-    key: ''
+    serverURL: 'https://33tv1bd5t7fs.usemoralis.com:2053/server',
+    key: '6jwa9LXW5JGEyN1NsJb8ZhlYu07o4rDJhfPvnFVe'
   },
   43113: {
-    serverURL: '',
-    key: ''
+    serverURL: 'https://xonzwsburhwj.usemoralis.com:2053/server',
+    key: '8KvEXNIeyuiusYj9hoaizPXjc3pamHHWlkHbZO5Z'
   },
   43114: {
-    serverURL: '',
-    key: ''
+    serverURL: 'https://ietd1r5r9bs1.usemoralis.com:2053/server',
+    key: '94CRrkmYxPCfdDQQd4L9gGiem3PKpZsv25fTSwDO'
   }
 };
 
