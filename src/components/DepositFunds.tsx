@@ -15,31 +15,35 @@ interface FundsState {
 	deposit?: string,
 }
 
-interface DepositFundsProps {};
+interface DepositFundsProps { };
 
 // TODO: VALIDITY CHECKERS
 export const DepositFunds: FunctionComponent<DepositFundsProps> = props => {
 
 	const wallet = useWallet();
-	const [ state, setState ] = useState<FundsState>({ amount: 0.1 });
+	const [state, setState] = useState<FundsState>({ amount: 0.1 });
 
 	useEffect(() => {
 		const init = async () => {
-			const balance = await getBalances(wallet.state.appNetwork, wallet.state.address);
-			const deposit = formatEther(balance);
-			setState(s => ({ ...s, deposit }));
+			try {
+				const balance = await getBalances(wallet.state.appNetwork, wallet.state.address);
+				const deposit = formatEther(balance);
+				setState(s => ({ ...s, deposit }));
+			} catch (err) {
+				console.log(err);
+			}
 		};
 
-		if (!!wallet.state.address) init();
+		if (!!wallet.state.address && wallet.state.loaded) init();
 
-	}, [ wallet.state.address, wallet.state.appNetwork ]);
+	}, [wallet]);
 
 	const handleConnect = () => {
 		wallet.actions.connect();
 	};
 
 	const handleFundsChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setState(s => ({ ...s, funds: e.target.valueAsNumber }));
+		setState(s => ({ ...s, amount: e.target.valueAsNumber }));
 	};
 
 	const handleDeposit = async () => {
@@ -78,29 +82,29 @@ export const DepositFunds: FunctionComponent<DepositFundsProps> = props => {
 	};
 
 
-	return(
+	return (
 		<Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
 			<h3 className="text-xl font-semibold text-center">Deposit Funds</h3>
 
 			{
 				!wallet.state.address
 					? <>
-							<p>
-								<button className="underline" onClick={handleConnect}>Connect Wallet</button>
-								<span>&nbsp;to see your deposit balance</span>
-							</p>
-						</>
+						<p>
+							<button className="underline" onClick={handleConnect}>Connect Wallet</button>
+							<span>&nbsp;to see your deposit balance</span>
+						</p>
+					</>
 					: ''
 			}
 
 			{
 				!!wallet.state.address && state.deposit
 					? <>
-							<span className='flex flex-row space-x-2'>
+						<span className='flex flex-row space-x-2'>
 							<p className='font-semibold'>Deposit balance:</p>
 							<p className='font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-autonomyAcent500 to-autonomySecondary500'>{state.deposit} { chainCurrency[wallet.state.appNetwork].symbol }</p>
-							</span>
-						</>
+            </span>
+					</>
 					: ''
 			}
 

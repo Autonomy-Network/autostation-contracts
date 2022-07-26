@@ -30,6 +30,7 @@ interface WalletState {
   /** the user's wallet network, this can be anything */
   walletNetwork: number;
   transaction?: Transaction;
+  loaded: boolean;
 }
 
 interface WalletActions {
@@ -49,7 +50,8 @@ function initWalletState(): WalletState {
   return {
     address: '',
     appNetwork: DEFAULT_NETWORK,
-    walletNetwork: DEFAULT_NETWORK
+    walletNetwork: DEFAULT_NETWORK,
+    loaded: false,
   };
 }
 
@@ -93,6 +95,8 @@ const useWalletSetUp = (): WalletContext => {
 
       const supported = isNetworkSupported(walletNetwork);
       if (supported) setState(s => ({ ...s, appNetwork: walletNetwork }));
+
+      setState(s => ({ ...s, loaded: true }))
     };
     init();
 

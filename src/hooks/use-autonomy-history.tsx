@@ -45,10 +45,10 @@ export function useAutomationHistory() {
       Moralis.serverURL = serverURL;
 
       const fujiQuery = new Moralis.Query('RegistryRequests');
-      fujiQuery.equalTo('user', address);
+      fujiQuery.equalTo('user', address.toLowerCase());
 
       const targetQuery = new Moralis.Query('RegistryRequests');
-      targetQuery.equalTo('target', FUNDS_ROUTER_ADDRESSES[appNetwork]);
+      targetQuery.equalTo('target', FUNDS_ROUTER_ADDRESSES[appNetwork].toLowerCase());
 
       const queryRequests = Moralis.Query.and(fujiQuery, targetQuery);
       queryRequests.limit(30000);
