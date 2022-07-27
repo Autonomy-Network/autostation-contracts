@@ -1,12 +1,17 @@
-
-import React, { createContext, FunctionComponent, ReactFragment, useContext, useEffect, useState } from 'react';
-
-import { BigNumber, PopulatedTransaction, providers, Signer } from 'ethers';
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/abstract-provider';
+import React, { createContext, FunctionComponent, ReactFragment, useContext, useEffect, useState } from 'react';
+import { BigNumber, PopulatedTransaction, providers, Signer } from 'ethers';
 
 import { TxModal } from '@autonomy-station/components/TxModal';
-import { chainCurrency, chainRpcUrls, DEFAULT_NETWORK, etherscanConfig, isNetworkSupported, Network, networkNames } from '@autonomy-station/lib/networks';
-
+import {
+  chainCurrency,
+  chainRpcUrls,
+  DEFAULT_NETWORK,
+  etherscanConfig,
+  isNetworkSupported,
+  Network,
+  networkNames
+} from '@autonomy-station/lib/networks';
 
 export interface Transaction {
   title?: string;
@@ -15,8 +20,7 @@ export interface Transaction {
   txResponse?: TransactionResponse;
   txReceipt?: TransactionReceipt;
   error?: ReactFragment;
-};
-
+}
 
 interface WalletState {
   address: string;
@@ -26,14 +30,15 @@ interface WalletState {
   /** the user's wallet network, this can be anything */
   walletNetwork: number;
   transaction?: Transaction;
+  loaded: boolean;
 }
 
 interface WalletActions {
   connect: () => Promise<string[]>;
-  switchAppNetwork: (newNetwork: Network) => Promise<void>,
-  signMessage: (message: string) => Promise<string>,
-  sendTransaction: (populatedTransaction: PopulatedTransaction) => Promise<void>,
-  cancelTransaction: () => Promise<void>,
+  switchAppNetwork: (newNetwork: Network) => Promise<void>;
+  signMessage: (message: string) => Promise<string>;
+  sendTransaction: (populatedTransaction: PopulatedTransaction) => Promise<void>;
+  cancelTransaction: () => Promise<void>;
 }
 
 interface WalletContext {
@@ -46,6 +51,7 @@ function initWalletState(): WalletState {
     address: '',
     appNetwork: DEFAULT_NETWORK,
     walletNetwork: DEFAULT_NETWORK,
+    loaded: false,
   };
 }
 
@@ -57,30 +63,27 @@ function initWalletContext(): WalletContext {
       switchAppNetwork: async (newNetwork: Network) => undefined,
       signMessage: async (message: string) => '',
       sendTransaction: async (populatedTransaction: PopulatedTransaction) => undefined,
-      cancelTransaction: async () => undefined,
+      cancelTransaction: async () => undefined
     }
-  }
+  };
 }
 
 const walletContext = createContext<WalletContext>(initWalletContext());
 
 const useWalletSetUp = (): WalletContext => {
-
-  const [ state, setState ] = useState(initWalletState());
-
+  const [state, setState] = useState(initWalletState());
 
   // ensure code only run on the Browser, to avoid window is undefined error
   useEffect(() => {
-
     const init = async () => {
       const isConnected = async () => {
         const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
         return accounts.length > 0;
-      }
-      
+      };
+
       const connected = await isConnected();
       if (connected) {
-        const [ address ] = await (window as any).ethereum?.request({ method: 'eth_requestAccounts' });
+        const [address] = await (window as any).ethereum?.request({ method: 'eth_requestAccounts' });
         const provider = new providers.Web3Provider((window as any).ethereum);
         const signer = provider.getSigner();
         setState(s => ({ ...s, address, signer }));
@@ -92,12 +95,14 @@ const useWalletSetUp = (): WalletContext => {
 
       const supported = isNetworkSupported(walletNetwork);
       if (supported) setState(s => ({ ...s, appNetwork: walletNetwork }));
+
+      setState(s => ({ ...s, loaded: true }))
     };
     init();
-    
+
     // Listeners
     (window as any).ethereum?.on('accountsChanged', (accounts: string[]) => {
-      const [ address ] = accounts;
+      const [address] = accounts;
       if (!address) {
         setState(s => ({ ...s, address: '', signer: undefined }));
       } else {
@@ -114,7 +119,6 @@ const useWalletSetUp = (): WalletContext => {
       const supported = isNetworkSupported(walletNetwork);
       if (supported) setState(s => ({ ...s, appNetwork: walletNetwork }));
     });
-
   }, []);
 
   const connect = () => {
@@ -133,19 +137,24 @@ const useWalletSetUp = (): WalletContext => {
       try {
         await (window as any).ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId }] });
       } catch (error: any) {
-        if (error.code === 4902) { // MetaMask doesn't recognized this network: ask the user to add it
+        if (error.code === 4902) {
+          // MetaMask doesn't recognized this network: ask the user to add it
           const chainName = networkNames[newNetwork];
           const nativeCurrency = { ...chainCurrency[newNetwork], decimals: 18 };
-          const blockExplorerUrls = [ etherscanConfig.explorer[newNetwork] ];
-          const rpcUrls = [ chainRpcUrls[newNetwork] ];
-          await (window as any).ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId, chainName, nativeCurrency, blockExplorerUrls, rpcUrls }] });
+          const blockExplorerUrls = [etherscanConfig.explorer[newNetwork]];
+          const rpcUrls = [chainRpcUrls[newNetwork]];
+          await (window as any).ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{ chainId, chainName, nativeCurrency, blockExplorerUrls, rpcUrls }]
+          });
         } else console.warn(error);
       }
     } else {
-      throw new Error(`Unsupported Network: You tried to switch the app to #${newNetwork}, but this network is not supported.`);
+      throw new Error(
+        `Unsupported Network: You tried to switch the app to #${newNetwork}, but this network is not supported.`
+      );
     }
   };
-
 
   /** String message signature, this is not the same as transaction signature! */
   const signMessage = async (message: string) => {
@@ -154,23 +163,26 @@ const useWalletSetUp = (): WalletContext => {
     return state.signer.signMessage(message);
   };
 
-
   const sendTransaction = async (populatedTransaction: PopulatedTransaction) => {
     if (!state.signer) throw new Error(`Your wallet must be connected in order to send transactions!`);
 
     setState(s => ({ ...s, transaction: { txRequest: populatedTransaction } }));
-    
+
     try {
       // waiting for user approval
       const response = await state.signer.sendTransaction(populatedTransaction);
       setState(s => ({ ...s, transaction: { ...s.transaction, txResponse: response } }));
-      
+
       // waiting for tx to be included
       const receipt = await response.wait();
       setState(s => ({ ...s, transaction: { ...s.transaction, txReceipt: receipt } }));
     } catch (error: any) {
-      if (error?.code === 4001) setState(s => ({ ...s, transaction: { ...s.transaction, error: <>You denied the transaction!</> } }));
-      setState(s => ({ ...s, transaction: { ...s.transaction, error: <>The transaction failed, please try agin!</> } }));
+      if (error?.code === 4001)
+        setState(s => ({ ...s, transaction: { ...s.transaction, error: <>You denied the transaction!</> } }));
+      setState(s => ({
+        ...s,
+        transaction: { ...s.transaction, error: <>The transaction failed, please try agin!</> }
+      }));
       console.warn(error);
     }
   };
@@ -186,24 +198,29 @@ const useWalletSetUp = (): WalletContext => {
       switchAppNetwork,
       signMessage,
       sendTransaction,
-      cancelTransaction,
+      cancelTransaction
     }
-  }
+  };
 };
 
 export const WalletProvider: FunctionComponent = ({ children }) => {
-
   const wallet = useWalletSetUp();
 
-  return <walletContext.Provider value={wallet}>
-    {children}
-    {
-      !!wallet.state.transaction
-        ? <TxModal transaction={wallet.state.transaction} onClose={wallet.actions.cancelTransaction} onSuccess={wallet.actions.cancelTransaction}></TxModal>
-        : ''
-    }
-  </walletContext.Provider>;
-}
+  return (
+    <walletContext.Provider value={wallet}>
+      {children}
+      {!!wallet.state.transaction ? (
+        <TxModal
+          transaction={wallet.state.transaction}
+          onClose={wallet.actions.cancelTransaction}
+          onSuccess={wallet.actions.cancelTransaction}
+        ></TxModal>
+      ) : (
+        ''
+      )}
+    </walletContext.Provider>
+  );
+};
 
 export const useWallet = () => {
   const wallet = useContext(walletContext);

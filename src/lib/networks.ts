@@ -1,95 +1,81 @@
-
 import { getDefaultProvider } from 'ethers';
 
-
-export const networks = [1, 3, 4, 56, 43113, 43114] as const;
+export const networks = [56, 97, 43113, 43114] as const;
 export type Network = typeof networks[number];
+
+export const FUNDS_ROUTER_ADDRESSES: Record<Network, string> = {
+  56: '0x99A5F6658C6D4c117998345F6BAE104bDeDB2e75',
+  97: '0x2b25c05A64FC279D57E5a80AdE773E8Dd5A88E6E',
+  43113: '0x887fDe9e7f1BDB3A862A43E2E028c3CEEF51c170',
+  43114: '0xe3F46f9039601C7D5511F85D3280A05a83E8d08b'
+};
+
+export const REGISTRY_ADDRESSES: Record<Network, string> = {
+  56: '0x18d087F8D22D409D3CD366AF00BD7AeF0BF225Db',
+  97: '0x2d08DAAE7687f4516287EBF1bF6c3819f7517Ac9',
+  43113: '0xA0F25b796dD59E504077F87Caea1c0472Cd6b7b4',
+  43114: '0x68FCbECa74A7E5D386f74E14682c94DE0e1bC56b'
+};
 
 type NetworkConfigRecord = Record<Network, string>;
 
-
 export const networkNames: NetworkConfigRecord = {
-  1: 'Ethereum Mainnet',
-  3: 'Ropsten',
-  4: 'Rinkeby',
-
   56: 'BSC Mainnet',
+  97: 'BSC Testnet',
   43113: 'Avalanche Fuji Testnet',
-  43114: 'Avalanche Mainnet',
+  43114: 'Avalanche Mainnet'
 };
 
 export function isNetworkSupported(chainId: number): chainId is Network {
   return networks.includes(chainId as any);
 }
 
-export const DEFAULT_NETWORK: Network = 43113;
+export const DEFAULT_NETWORK: Network = 56;
 
 interface EtherscanConfig {
   endpoints: NetworkConfigRecord;
   apiKey: NetworkConfigRecord;
   explorer: NetworkConfigRecord;
-};
-
+}
 
 // ? MOST OF NETWORK INFO CAN BE COPIED FROM: https://chainid.network/chains.json
 
 // ! URLs SHOULD NEVER END WITH A `/` !!!
 export const etherscanConfig: EtherscanConfig = {
   endpoints: {
-    1: 'https://api.etherscan.io',
-    4: 'https://api-rinkeby.etherscan.io',
-    3: 'https://api-ropsten.etherscan.io',
-    43114: 'https://api.snowtrace.io',
     56: 'https://api.bscscan.com',
-    43113: 'https://api-testnet.snowtrace.io'
+    97: 'https://api-testnet.bscscan.com',
+    43113: 'https://api-testnet.snowtrace.io',
+    43114: 'https://api.snowtrace.io'
   },
   apiKey: {
-    1: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    4: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    3: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    43114: process.env.REACT_APP_ETHERSCAN_API_KEY!,
     56: process.env.REACT_APP_ETHERSCAN_API_KEY!,
-    43113: process.env.REACT_APP_ETHERSCAN_API_KEY!
+    97: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    43113: process.env.REACT_APP_ETHERSCAN_API_KEY!,
+    43114: process.env.REACT_APP_ETHERSCAN_API_KEY!
   },
   explorer: {
-    1: 'https://etherscan.io',
-    4: 'https://rinkeby.etherscan.io',
-    3: 'https://ropsten.etherscan.io',
-    43114: 'https://snowtrace.io',
     56: 'https://bscscan.com',
-    43113: 'https://testnet.snowtrace.io'
+    97: 'https://testnet.bscscan.com',
+    43113: 'https://testnet.snowtrace.io',
+    43114: 'https://snowtrace.io'
   }
 };
 
 export const chainRpcUrls: NetworkConfigRecord = {
-  // ! default networks are already included in MetaMask, those values will never be used
-  1: '',
-  4: '',
-  3: '',
-
-  // for extra network, we might provide the user RPC urls to add to MetaMask
-  43114: 'https://api.avax.network/ext/bc/C/rpc',
   56: 'https://bsc-dataseed1.binance.org',
+  97: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   43113: 'https://api.avax-test.network/ext/bc/C/rpc',
+  43114: 'https://api.avax.network/ext/bc/C/rpc'
 };
 
-export const chainCurrency: Record<Network, { name: string, symbol: string }> = {
-  // ! default networks are already included in MetaMask, those values will never be used
-  1: { name: 'Ether', symbol: 'ETH' },
-  4: { name: 'Rinkeby Ether', symbol: 'ETH' },
-  3: { name: 'Ropsten Ether', symbol: 'ETH' },
-
-  // for extra network, we might provide the user currency info to add to MetaMask
-  43114: { name: 'Avalanche', symbol: 'AVAX' },
-  56: { name: 'Binance Chain Native Token', symbol: 'BNB' },
-  43113: { name: 'Avalanche', symbol: 'AVAX' },
+export const chainCurrency: Record<Network, { name: string; symbol: string }> = {
+  56: { name: 'Binance Coin', symbol: 'BNB' },
+  97: { name: 'Testnet Binance Coin', symbol: 'TBNB' },
+  43113: { name: 'Testnet Avalanche', symbol: 'AVAX' },
+  43114: { name: 'Avalanche', symbol: 'AVAX' }
 };
-
 
 export function getProvider(network: Network) {
-  // ethers supports default networks
-  if (network === 1 || network === 3 || network === 4) return getDefaultProvider(network);
-
-  // for custom networks we must specify the rpc url
   return getDefaultProvider(chainRpcUrls[network]);
 }
