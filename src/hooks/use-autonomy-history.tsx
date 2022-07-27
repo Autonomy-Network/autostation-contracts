@@ -1,7 +1,7 @@
+import registryAbi from '@autonomy-station/abis/registry.json';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
-import { useRegistryContract } from '@autonomy-station/hooks/use-contract';
-import { FUNDS_ROUTER_ADDRESSES, Network } from '@autonomy-station/lib/networks';
-import { BigNumber } from 'ethers';
+import { FUNDS_ROUTER_ADDRESSES, Network, REGISTRY_ADDRESSES } from '@autonomy-station/lib/networks';
+import { BigNumber, Contract } from 'ethers';
 import Moralis from 'moralis';
 import { useState, useEffect } from 'react';
 
@@ -29,17 +29,33 @@ export const MORALIS_INFO: Record<Network, MoralisInfo> = {
   }
 };
 
+export interface Automation {
+  id: string;
+  user: string;
+  target: string;
+  referer: string;
+  callData: string;
+  initEthSent: string;
+  ethForCall: string;
+  verifyUser: boolean;
+  insertFeeAmount: boolean;
+  payWithAUTO: boolean;
+  label: string;
+  tx_hash: string;
+  isAlive: boolean;
+  hashed: string;
+}
+
 export function useAutomationHistory() {
   const wallet = useWallet();
-  const registryContract = useRegistryContract();
-  const [automations, setAutomations] = useState<any>([]);
+  const [automations, setAutomations] = useState<Automation[]>([]);
 
   useEffect(() => {
     async function init() {
       const { appNetwork, address, signer } = wallet.state;
       const { key, serverURL } = MORALIS_INFO[appNetwork];
 
-      if (!signer || !registryContract || !key || !serverURL) return;
+      if (!signer || !key || !serverURL) return;
 
       Moralis.initialize(key);
       Moralis.serverURL = serverURL;
@@ -54,33 +70,38 @@ export function useAutomationHistory() {
       queryRequests.limit(30000);
 
       const registryRequests = await queryRequests.find();
-      const requestMap = await Promise.all(
-        registryRequests.map(async request => {
-          return {
-            id: request.get('uid'),
-            user: request.get('user'),
-            target: request.get('target'),
-            referer: request.get('referer'),
-            callData: request.get('callData'),
-            initEthSent: BigNumber.from(request.get('initEthSent')).toString(),
-            ethForCall: BigNumber.from(request.get('ethForCall')).toString(),
-            verifyUser: request.get('verifyUser'),
-            insertFeeAmount: request.get('insertFeeAmount'),
-            payWithAUTO: request.get('payWithAUTO'),
-            label: request.get('label'),
-            tx_hash: request.get('transaction_hash'),
-            isAlive: request.get('isAlive'),
-            hashed: await registryContract.getHashedReq(request.get('uid'))
-          };
-        })
-      );
-      setAutomations(
-        requestMap.filter(x => x.hashed !== '0x0000000000000000000000000000000000000000000000000000000000000000')
-      );
+      const registryContract = new Contract(REGISTRY_ADDRESSES[appNetwork], registryAbi, signer)
+      try {
+        const requestMap = await Promise.all(
+          registryRequests.map(async request => {
+            return {
+              id: request.get('uid'),
+              user: request.get('user'),
+              target: request.get('target'),
+              referer: request.get('referer'),
+              callData: request.get('callData'),
+              initEthSent: BigNumber.from(request.get('initEthSent')).toString(),
+              ethForCall: BigNumber.from(request.get('ethForCall')).toString(),
+              verifyUser: request.get('verifyUser'),
+              insertFeeAmount: request.get('insertFeeAmount'),
+              payWithAUTO: request.get('payWithAUTO'),
+              label: request.get('label'),
+              tx_hash: request.get('transaction_hash'),
+              isAlive: request.get('isAlive'),
+              hashed: await registryContract.getHashedReq(request.get('uid'))
+            };
+          })
+        );
+        setAutomations(
+          requestMap.filter(x => x.hashed !== '0x0000000000000000000000000000000000000000000000000000000000000000')
+        );
+      } catch (err) {
+        console.log(err)
+      }
     }
     const interval = setInterval(init, 2000);
     return () => clearInterval(interval);
-  }, [wallet, registryContract]);
+  }, [wallet]);
 
   return automations;
 }
