@@ -11,6 +11,10 @@ interface MoralisInfo {
 }
 
 export const MORALIS_INFO: Record<Network, MoralisInfo> = {
+  3: {
+    serverURL: '',
+    key: ''
+  },
   56: {
     serverURL: 'https://bthi18qjnrml.usemoralis.com:2053/server',
     key: 'dpRncaRt3nboZFdVkl2zJUJoTs7MP6eCdvx7abtH'
