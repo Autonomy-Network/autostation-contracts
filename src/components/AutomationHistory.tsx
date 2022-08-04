@@ -1,7 +1,7 @@
 import { Card } from '@autonomy-station/ui/Card';
 import { Button } from '@autonomy-station/ui/Button';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
-import { useAutomationHistory } from '@autonomy-station/hooks/use-autonomy-history';
+import { Automation, useAutomationHistory } from '@autonomy-station/hooks/use-autonomy-history';
 import { useRegistryContract } from '@autonomy-station/hooks/use-contract';
 import { FunctionComponent } from 'react';
 
@@ -14,7 +14,7 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
 
   if (!wallet.state.signer) wallet.actions.connect();
 
-  const handleCancel = async (auto: any) => {
+  const handleCancel = async (auto: Automation) => {
     if (!registryContract) return;
     let tx = await registryContract.cancelHashedReq(auto.id, [
       auto.user,
@@ -35,7 +35,7 @@ export const AutomationHistory: FunctionComponent<AutomationProps> = props => {
     <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
       <h3 className="text-xl font-semibold text-center">Automation History</h3>
       <div>
-        {automations.map((auto: any, index: number) => (
+        {automations.map((auto: Automation, index: number) => (
           <div className="flex flex-row justify-between" key={index}>
             {!!auto.label ? (
               <>
