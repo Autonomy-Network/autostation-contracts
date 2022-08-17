@@ -1,7 +1,13 @@
 import fundsRouterABI from '@autonomy-station/abis/fundsRouter.json';
 import registryAbi from '@autonomy-station/abis/registry.json';
+import timeConditionsAbi from '@autonomy-station/abis/timeConditions.json';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
-import { REGISTRY_ADDRESSES, FUNDS_ROUTER_ADDRESSES, Network } from '@autonomy-station/lib/networks';
+import {
+  REGISTRY_ADDRESSES,
+  FUNDS_ROUTER_ADDRESSES,
+  Network,
+  TIME_CONDITIONS_ADDRESSES
+} from '@autonomy-station/lib/networks';
 import { getContract } from '@autonomy-station/utils';
 import { Contract } from '@ethersproject/contracts';
 import { useMemo } from 'react';
@@ -38,4 +44,8 @@ export function useFundsRouterContract(): Contract | null {
 
 export function useRegistryContract(): Contract | null {
   return useContract(REGISTRY_ADDRESSES, registryAbi);
+}
+
+export function useTimeConditionsContract(): Contract | null {
+  return useContract(TIME_CONDITIONS_ADDRESSES, timeConditionsAbi);
 }
