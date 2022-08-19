@@ -98,20 +98,8 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ id, onS
   const [state, setState] = useState<PresetState>(initialState());
 
   const handleClick = async () => {
-    // TODO THIS SHOULD BE HANDLED INSIDE THE WALLET
-    let userAddress = wallet.state.address;
-    if (!userAddress) {
-      try {
-        const accounts = await wallet.actions.connect();
-        if (accounts[0]?.length === 42) userAddress = accounts[0];
-        else return;
-      } catch (err) {
-        console.error(err);
-        return;
-      }
-    }
-
-    if (!timeConditionsContract) return;
+    const userAddress = await wallet.actions.getAddress();
+    if (!userAddress || !timeConditionsContract) return;
     const { address } = timeConditionsContract;
     // TODO: FIND A BETTER WAY TO DIFFERENTIATE BETWEEN TABS - FOR FUTURE WE NEED TO BE ABLE TO ADD MORE TABS
     if (tabIndex === 0) {

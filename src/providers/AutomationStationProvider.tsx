@@ -1,3 +1,4 @@
+import { PopulatedTransaction } from 'ethers';
 import React, { Dispatch, SetStateAction } from 'react';
 
 type ConditionType = 'preset' | 'custom';
@@ -7,8 +8,16 @@ type Condition = {
   type: 'preset' | 'custom';
 };
 
+type MultiState = {
+  id: number;
+  tx: PopulatedTransaction;
+  address: string;
+  callData: any[];
+};
+
 export type AutomationStationContextType = {
   conditions: Condition[];
+  multiStates: MultiState[];
   recurring: boolean;
   name: string;
   addCondition: (type: ConditionType) => void;
@@ -19,6 +28,7 @@ export type AutomationStationContextType = {
 
 const defaultState = {
   conditions: [],
+  multiStates: [],
   recurring: false,
   name: '',
   addCondition: (type: ConditionType) => {},
@@ -31,6 +41,7 @@ export const AutomationStationContext = React.createContext<AutomationStationCon
 
 export default function AutomationStationProvider({ children }: { children: any }) {
   const [conditions, setConditions] = React.useState<Condition[]>([]);
+  const [multiStates, setMultiStates] = React.useState<MultiState[]>([]);
   const [recurring, setRecurring] = React.useState<boolean>(false);
   const [name, setName] = React.useState<string>('');
 
@@ -49,7 +60,7 @@ export default function AutomationStationProvider({ children }: { children: any 
 
   return (
     <AutomationStationContext.Provider
-      value={{ conditions, recurring, name, addCondition, removeCondition, toggleRecurring, setName }}
+      value={{ conditions, multiStates, recurring, name, addCondition, removeCondition, toggleRecurring, setName }}
     >
       {children}
     </AutomationStationContext.Provider>
