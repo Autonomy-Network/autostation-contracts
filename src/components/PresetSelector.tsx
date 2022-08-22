@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useContext, useState } from 'react';
 
 import { ethers, PopulatedTransaction } from 'ethers';
 
@@ -9,6 +9,7 @@ import { DateInput } from '@autonomy-station/ui/DateInput';
 import { useTimeConditionsContract } from '@autonomy-station/hooks/use-contract';
 import { useWallet } from '@autonomy-station/hooks/use-wallet';
 import { RecurringInput } from '@autonomy-station/ui/RecurringInput';
+import { AutomationStationContext } from '@autonomy-station/providers/AutomationStationProvider';
 
 function formatDate(timestamp: number) {
   const date = new Date(timestamp * 1000);
@@ -85,15 +86,12 @@ function initialState(): PresetState {
 
 interface PresetSelectorProps {
   id: number;
-  // TODO: BETTER TYPE CHECK FOR CALLDATA - POTENTIALLY REMOVE TX AND ADDRESS
-  onSubmit: (tx: PopulatedTransaction, address: string, callData: any[]) => void;
-  onRemove: (id: number) => void;
 }
 
-export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ id, onSubmit, onRemove }) => {
+export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ id }) => {
   const wallet = useWallet();
-  // TODO: CALLDATA NEEDS TO GET AN EXTRA 2 INPUTS FROM THE USER, ethForCall and verifyUser - https://github.com/Autonomy-Network/autonomy-station/blob/0ce19546618da6a58bc886bba9bdd712c91672ff/contracts/FundsRouter.sol#L94
   const timeConditionsContract = useTimeConditionsContract();
+  const { addMultiState, removeCondition, removeMultiState } = useContext(AutomationStationContext);
   const [tabIndex, setTabIndex] = useState(0);
   const [state, setState] = useState<PresetState>(initialState());
 
@@ -105,22 +103,22 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ id, onS
     if (tabIndex === 0) {
       // Recurring
       const callId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-      const recurring = await timeConditionsContract.populateTransaction.everyTimePeriod(
+      const recurringTx = await timeConditionsContract.populateTransaction.everyTimePeriod(
         userAddress,
         callId,
         state.start,
         state.period
       );
-      const callData = [address, recurring.data, 0, true];
-      onSubmit(recurring, address, callData);
+      const callData = [address, recurringTx.data, 0, true]; // ethForCall - 0, verifyUser - true
+      addMultiState({ id, tx: recurringTx, address, callData });
     } else {
       // one time
-      const oneTime = await timeConditionsContract.populateTransaction.betweenTimes(
+      const oneTimeTx = await timeConditionsContract.populateTransaction.betweenTimes(
         state.timeAfter,
         (state.timeAfter ?? 0) + ((state.timeBefore ?? 0) - (state.timeAfter ?? 0))
       );
-      const callData = [address, oneTime.data, 0, false];
-      onSubmit(oneTime, address, callData);
+      const callData = [address, oneTimeTx.data, 0, false]; // ethForCall - 0, verifyUser - true
+      addMultiState({ id, tx: oneTimeTx, address, callData });
     }
     setState(s => ({ ...s, summary: true }));
   };
@@ -146,11 +144,16 @@ export const PresetSelector: FunctionComponent<PresetSelectorProps> = ({ id, onS
     setTabIndex(index);
   };
 
+  const handleRemove = () => {
+    removeCondition(id);
+    removeMultiState(id);
+  };
+
   return (
     <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8">
       <div className="flex flex-row relative justify-center">
         <h3 className="text-xl font-semibold">Preset Automation</h3>
-        <h3 className="text-xl font-semibold absolute right-0 cursor-pointer" onClick={() => onRemove(id)}>
+        <h3 className="text-xl font-semibold absolute right-0 cursor-pointer" onClick={handleRemove}>
           &times;
         </h3>
       </div>

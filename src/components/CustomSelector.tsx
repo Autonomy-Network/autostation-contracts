@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FunctionComponent, ReactFragment, useEffect, useState } from 'react';
+import React, { ChangeEvent, FunctionComponent, ReactFragment, useContext, useEffect, useState } from 'react';
 
 import { Contract, PopulatedTransaction } from 'ethers';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +13,7 @@ import { InputAbi } from '@autonomy-station/components/InputAbi';
 import { getContractInfo } from '@autonomy-station/lib/etherscan';
 import { InputFunctionParams } from '@autonomy-station/components/InputFunctionParams';
 import { SelectContractFunction } from '@autonomy-station/components/SelectContractFunction';
+import { AutomationStationContext } from '@autonomy-station/providers/AutomationStationProvider';
 
 export interface CustomState {
   error: ReactFragment;
@@ -42,16 +43,14 @@ function initialState(): CustomState {
 interface CustomSelectorProps {
   id: number;
   network: Network;
-  // TODO: BETTER TYPECHECK FOR CALLDATA - POTENTIALLY REMOVE TX AND ADDRESS
-  onSubmit: (tx?: PopulatedTransaction, address?: string, callData?: Array<any>) => void;
-  onRemove: (id: number) => void;
 }
 
-export const CustomSelector: FunctionComponent<CustomSelectorProps> = ({ id, network, onSubmit, onRemove }) => {
+export const CustomSelector: FunctionComponent<CustomSelectorProps> = ({ id, network }) => {
   useEffect(() => {
     setState(initialState());
   }, [network]);
 
+  const { addMultiState, removeCondition, removeMultiState } = useContext(AutomationStationContext);
   const [state, setState] = useState<CustomState>(initialState());
   const [editor, setEditor] = useState<boolean>(true);
   const [advanced, setAdvanced] = useState<boolean>(false);
@@ -103,10 +102,9 @@ export const CustomSelector: FunctionComponent<CustomSelectorProps> = ({ id, net
     const fnName = state.contract.selectedFunction!.name;
     const fnAddress = state.contract.address;
     const tx = await state.contract.instance!.populateTransaction[fnName](...inputs);
-    // TODO: 0 and false inputs here might need to be changed depending on contract
-    // TODO: CALLDATA NEEDS TO GET AN EXTRA 2 INPUTS FROM THE USER, ethForCall and verifyUser - https://github.com/Autonomy-Network/autonomy-station/blob/0ce19546618da6a58bc886bba9bdd712c91672ff/contracts/FundsRouter.sol#L94
-    let callData = [fnAddress, tx.data, fee, verify];
-    onSubmit(tx, fnAddress, callData);
+    const callData = [fnAddress, tx.data, fee, verify];
+
+    addMultiState({ id, tx, address: fnAddress, callData });
     setEditor(false);
   };
 
@@ -131,14 +129,18 @@ export const CustomSelector: FunctionComponent<CustomSelectorProps> = ({ id, net
   // TODO: TEST THAT EDITING WORKS FINE
   const handleEdit = () => {
     setEditor(true);
-    onSubmit();
+  };
+
+  const handleRemove = () => {
+    removeCondition(id);
+    removeMultiState(id);
   };
 
   return (
     <Card className="w-11/12 sm:w-9/12 md:w-1/2 xl:w-1/3 mb-8 relative">
       <div className="flex flex-row relative justify-center">
         <h3 className="text-xl font-semibold ">Custom Automation</h3>
-        <h3 className="text-xl font-semibold absolute right-0 cursor-pointer" onClick={() => onRemove(id)}>
+        <h3 className="text-xl font-semibold absolute right-0 cursor-pointer" onClick={handleRemove}>
           &times;
         </h3>
       </div>

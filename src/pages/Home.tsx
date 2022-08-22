@@ -20,34 +20,20 @@ interface HomeProps {}
 export const Home: FunctionComponent<HomeProps> = props => {
   const wallet = useWallet();
 
-  const { conditions, recurring, name, addCondition, removeCondition, toggleRecurring, setName } = useContext(
+  const { conditions, multiStates, recurring, name, addCondition, toggleRecurring, setName } = useContext(
     AutomationStationContext
   );
 
-  const [multiState, setMultiState] = useState<any>([]);
   const [finalStep, setFinalStep] = useState<boolean>(false);
 
   const fundsRouterContract = useFundsRouterContract();
   const registryContract = useRegistryContract();
 
-  const handleExecuteSubmit = (tx?: PopulatedTransaction, address?: string, callData?: any[]) => {
-    setMultiState((prevState: any[]) => [...prevState, { tx, address, callData }]);
-  };
-
-  const handleConditionSubmit = (tx?: PopulatedTransaction, address?: string, callData?: any[]) => {
-    setMultiState((prevState: any[]) => [...prevState, { tx, address, callData }]);
-  };
-
   const handleAutomate = async () => {
     if (!fundsRouterContract || !registryContract) return;
     const { address, appNetwork } = wallet.state;
-    let callArray: any = [];
-    multiState.forEach((x: any) => {
-      // TODO: REMOVE CALLDATA WHEN USER REMOVE A CARD
-      // let callData = [x.address, x.tx.data, 0, false] - deciding if callData should be built here or on their respective classes
-      callArray.push(x.callData);
-    });
-    let fundsRouting = await fundsRouterContract.populateTransaction.forwardCalls(address, 0, callArray);
+    const callDataArray = multiStates.map(ms => ms.callData);
+    let fundsRouting = await fundsRouterContract.populateTransaction.forwardCalls(address, 0, callDataArray);
     let tx = await registryContract.newReq(
       FUNDS_ROUTER_ADDRESSES[appNetwork],
       ZERO_ADDRESS,
@@ -91,15 +77,9 @@ export const Home: FunctionComponent<HomeProps> = props => {
       </section>
       {conditions.map(c =>
         c.type === 'preset' ? (
-          <PresetSelector key={c.id} id={c.id} onSubmit={handleConditionSubmit} onRemove={removeCondition} />
+          <PresetSelector key={c.id} id={c.id} />
         ) : (
-          <CustomSelector
-            key={c.id}
-            id={c.id}
-            network={wallet.state.appNetwork}
-            onRemove={removeCondition}
-            onSubmit={handleExecuteSubmit}
-          />
+          <CustomSelector key={c.id} id={c.id} network={wallet.state.appNetwork} />
         )
       )}
       <div>

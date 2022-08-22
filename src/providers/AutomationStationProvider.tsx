@@ -22,6 +22,8 @@ export type AutomationStationContextType = {
   name: string;
   addCondition: (type: ConditionType) => void;
   removeCondition: (id: number) => void;
+  addMultiState: (state: MultiState) => void;
+  removeMultiState: (id: number) => void;
   toggleRecurring: () => void;
   setName: Dispatch<SetStateAction<string>>;
 };
@@ -33,6 +35,8 @@ const defaultState = {
   name: '',
   addCondition: (type: ConditionType) => {},
   removeCondition: (id: number) => {},
+  addMultiState: (state: MultiState) => {},
+  removeMultiState: (id: number) => {},
   toggleRecurring: () => {},
   setName: () => {}
 };
@@ -56,11 +60,32 @@ export default function AutomationStationProvider({ children }: { children: any 
     setConditions(conditions.filter(c => c.id !== id));
   };
 
+  const addMultiState = (state: MultiState) => {
+    if (!multiStates.find(ms => ms.id === state.id)) {
+      setMultiStates([...multiStates, state]);
+    }
+  };
+
+  const removeMultiState = (id: number) => {
+    setMultiStates(multiStates.filter(ms => ms.id !== id));
+  };
+
   const toggleRecurring = () => setRecurring(!recurring);
 
   return (
     <AutomationStationContext.Provider
-      value={{ conditions, multiStates, recurring, name, addCondition, removeCondition, toggleRecurring, setName }}
+      value={{
+        conditions,
+        multiStates,
+        recurring,
+        name,
+        addCondition,
+        removeCondition,
+        addMultiState,
+        removeMultiState,
+        toggleRecurring,
+        setName
+      }}
     >
       {children}
     </AutomationStationContext.Provider>
