@@ -34,6 +34,7 @@ interface WalletState {
 }
 
 interface WalletActions {
+  getAddress: () => Promise<string | undefined>;
   connect: () => Promise<string[]>;
   switchAppNetwork: (newNetwork: Network) => Promise<void>;
   signMessage: (message: string) => Promise<string>;
@@ -51,7 +52,7 @@ function initWalletState(): WalletState {
     address: '',
     appNetwork: DEFAULT_NETWORK,
     walletNetwork: DEFAULT_NETWORK,
-    loaded: false,
+    loaded: false
   };
 }
 
@@ -59,6 +60,7 @@ function initWalletContext(): WalletContext {
   return {
     state: initWalletState(),
     actions: {
+      getAddress: async () => '',
       connect: async () => [],
       switchAppNetwork: async (newNetwork: Network) => undefined,
       signMessage: async (message: string) => '',
@@ -96,7 +98,7 @@ const useWalletSetUp = (): WalletContext => {
       const supported = isNetworkSupported(walletNetwork);
       if (supported) setState(s => ({ ...s, appNetwork: walletNetwork }));
 
-      setState(s => ({ ...s, loaded: true }))
+      setState(s => ({ ...s, loaded: true }));
     };
     init();
 
@@ -120,6 +122,21 @@ const useWalletSetUp = (): WalletContext => {
       if (supported) setState(s => ({ ...s, appNetwork: walletNetwork }));
     });
   }, []);
+
+  const getAddress = async () => {
+    let userAddress = state.address;
+    if (!userAddress) {
+      try {
+        const accounts = await connect();
+        if (accounts[0]?.length === 42) userAddress = accounts[0];
+        else return;
+      } catch (err) {
+        console.error(err);
+        return;
+      }
+    }
+    return userAddress;
+  };
 
   const connect = () => {
     return (window as any).ethereum?.request({ method: 'eth_requestAccounts' });
@@ -194,6 +211,7 @@ const useWalletSetUp = (): WalletContext => {
   return {
     state,
     actions: {
+      getAddress,
       connect,
       switchAppNetwork,
       signMessage,

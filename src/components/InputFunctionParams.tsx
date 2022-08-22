@@ -1,11 +1,9 @@
-
 import React, { ChangeEvent, FunctionComponent, useEffect, useState } from 'react';
 
 import { ParamType, defaultAbiCoder } from 'ethers/lib/utils';
 
 import { Input } from '@autonomy-station/ui/Input';
 import { Button } from '@autonomy-station/ui/Button';
-
 
 function getName(param: ParamType) {
   const isArray = param.baseType === 'array';
@@ -49,14 +47,13 @@ interface InputParamProps {
   value: string;
   param: ParamType;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-};
+}
 
 export const InputParam: FunctionComponent<InputParamProps> = ({ value, param, onChange }) => {
-
   const name = getName(param);
   const type = getType(param);
 
-  const [ state, setState ] = useState(<></>);
+  const [state, setState] = useState(<></>);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -70,24 +67,24 @@ export const InputParam: FunctionComponent<InputParamProps> = ({ value, param, o
   return (
     <>
       <p className="mb-1">{name}</p>
-      <Input type="text" value={value} onChange={handleChange} className="w-full font-mono">{type}</Input>
+      <Input type="text" value={value} onChange={handleChange} className="w-full font-mono">
+        {type}
+      </Input>
       <p className="text-center italic text-red-400">{state}</p>
     </>
   );
 };
 
-
 interface InputFunctionParamsProps {
   params: ParamType[];
   onSubmit: (inputs: unknown[]) => void;
-};
+}
 
 export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = ({ params, onSubmit }) => {
-  
-  const [ state, setState ] = useState<string[]>(() => params.map(_ => ''));
+  const [state, setState] = useState<string[]>(() => params.map(_ => ''));
   useEffect(() => {
     setState(params.map(_ => ''));
-  }, [ params ]);
+  }, [params]);
 
   const isValid = () => {
     try {
@@ -116,36 +113,23 @@ export const InputFunctionParams: FunctionComponent<InputFunctionParamsProps> = 
 
   const handleClick = () => {
     const inputs = isValid();
-    if (inputs){
+    if (inputs) {
       onSubmit(inputs);
-    } 
+    }
   };
 
-  return(
+  return (
     <>
-      {
-        params.map((param, index) => 
-          <div key={index}>
-            <InputParam value={state[index]} param={param} onChange={e => handleChange(index, e)} />
-          </div>
-        )
-      }
+      {params.map((param, index) => (
+        <div key={index}>
+          <InputParam value={state[index]} param={param} onChange={e => handleChange(index, e)} />
+        </div>
+      ))}
       <span className="mt-6 flex flex-row space-x-2 justify-center">
-        <Button onClick={handleClick} disabled={!isValid()}>Next</Button>
+        <Button onClick={handleClick} disabled={!isValid()}>
+          Next
+        </Button>
       </span>
     </>
   );
 };
-
-
-// TODO REMOVE THAT, THIS IS TO TEST THE UI BY INPUTTING MANUALLY AN ABI
-/*
-
-[
-  "function singleType(uint256 amount)",
-  "function arrayType(uint256[] amounts)",
-  "function tupleType(tuple(address to, uint256 amount) param)",
-  "function complexType(tuple(address to, uint256[] amount)[] params)"
-
-
-*/
