@@ -2,14 +2,13 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { BigNumberish, Contract, ContractReceipt, PopulatedTransaction } from 'ethers';
+import { BigNumber, BigNumberish, Contract, ContractReceipt, PopulatedTransaction } from 'ethers';
 
 import { TimeConditions } from '@autonomy-station/typechain-types/TimeConditions';
 import { TimeConditions__factory } from '@autonomy-station/typechain-types/factories/TimeConditions__factory';
 
 import wethAbi from './weth.abi.json';
 import registryAbi from './autonomy-registry.abi.json';
-// import stakeAbi from './stake-manager.abi.json';
 
 
 const ONE_HOUR = 60 * 60;
@@ -32,7 +31,7 @@ describe('TimeConditions contract', () => {
     timeConditions = await factory.deploy();
   });
 
-  describe.skip('Test "executeAt" function', () => {
+  describe('Test "executeAt" function', () => {
 
     it('Should fail with "too early"', async () => {
       const block = await ethers.provider.getBlock('latest');
@@ -65,7 +64,7 @@ describe('TimeConditions contract', () => {
   });
 
 
-  describe.skip('Test "executeAfter" function', () => {
+  describe('Test "executeAfter" function', () => {
 
     beforeEach(async () => {
       const CALL_ID = 0;
@@ -78,7 +77,7 @@ describe('TimeConditions contract', () => {
 
       const CALL_ID = 1;
 
-      const lastExecA = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecA = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecA).to.be.equal(0);
 
       // statically call the function to get access to the returned values
@@ -94,7 +93,7 @@ describe('TimeConditions contract', () => {
       const block = await ethers.provider.getBlock('latest');
       const now = block.timestamp;
 
-      const lastExecB = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecB = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecB).to.be.equal(now);
     });
 
@@ -104,7 +103,7 @@ describe('TimeConditions contract', () => {
 
       const block = await ethers.provider.getBlock('latest');
       const now = block.timestamp;
-      const lastExecA = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecA = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecA).to.be.equal(now);
 
       expect(timeConditions.executeAfter(owner.address, CALL_ID, ONE_HOUR, ZERO_ADDRESS, '0x00')).to.be.revertedWith('Error: too early');
@@ -117,10 +116,10 @@ describe('TimeConditions contract', () => {
       const block = await ethers.provider.getBlock('latest');
       const previousTime = block.timestamp;
 
-      await ethers.provider.send('evm_increaseTime', [ ONE_HOUR + 10 ]) // increase eth node time by some amount in seconds
-      await ethers.provider.send('evm_mine', []) // force mine a block so that block.timestamp is set as we wanted above
+      await ethers.provider.send('evm_increaseTime', [ ONE_HOUR + 10 ]); // increase eth node time by some amount in seconds
+      await ethers.provider.send('evm_mine', []); // force mine a block so that block.timestamp is set as we wanted above
 
-      const lastExecA = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecA = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecA).to.be.equal(previousTime);
 
       // statically call the function to get access to the returned values
@@ -133,7 +132,7 @@ describe('TimeConditions contract', () => {
       const receipt = await tx.wait();
       expect(receipt.status).to.be.equal(1);
 
-      const lastExecB = await timeConditions.userToIDtoLastExecTime(owner.address, CALL_ID);
+      const lastExecB = await timeConditions.userToIdToLastExecTime(owner.address, CALL_ID);
       expect(lastExecB).to.be.equal(previousTime + ONE_HOUR);
     });
 
@@ -142,6 +141,9 @@ describe('TimeConditions contract', () => {
   describe('Test "real life" scenarios', () => {
 
     // Deposit 1 ETH in WETH contract
+    //  Note: the scenario is pretty dumb because it's the
+    //    TimeCondition contract that will deposit ETH into
+    //    the WETH contract, making it the owner of the WETH.
 
     /** Autonomy Registry on Ropsten */
     const AUTONOMY_REGISTRY = '0x3C901dc595105934D61DB70C2170D3a6834Cb8B7';
@@ -152,7 +154,9 @@ describe('TimeConditions contract', () => {
     /** WETH contract: `function deposit() public payable` */
     const DEPOSIT_SIGNATURE = '0xd0e30db0'
 
-    const GAS_ESTIMATE = ethers.utils.parseEther('0.05'); // should be more than enough
+    // const GAS_PRICE = ethers.utils.parseEther('0.000005'); 
+    const GAS_PRICE = ethers.utils.parseUnits('50', 'gwei'); 
+    const GAS_LIMIT = 10_000_000; // should be more than enough
 
     let now: number;
     let WETH: Contract;
@@ -175,26 +179,15 @@ describe('TimeConditions contract', () => {
         DEPOSIT_SIGNATURE,
       );
 
-      // const tx = await registry.newReq(
-      //   timeConditions.address, // target address, here the timeCondition, this is not the "final" target (the WETH contract)
-      //   ZERO_ADDRESS, // referrer address that may collect some fee because they brought the user into the Autonomy ecosystem
-      //   callData.data, // callData to pass to the TimeCondition smart-contract: executeAt(notBefore, notAfter, target, params)
-      //   ONE_ETHER, // ethForCall: value to forward
-      //   false, // verifyUser
-      //   false, // insertFeeAmount
-      //   false, // isAlive
-      //   { value: ONE_ETHER.add(GAS_ESTIMATE) } // ETH to send, along with the gas of the future tx
-      // );
-
       const tx = await registry.newReq(
-        accountA.address, // target address, here the timeCondition, this is not the "final" target (the WETH contract)
+        timeConditions.address, // target address, here the timeCondition, this is not the "final" target (the WETH contract)
         ZERO_ADDRESS, // referrer address that may collect some fee because they brought the user into the Autonomy ecosystem
-        '0x', // callData to pass to the TimeCondition smart-contract: executeAt(notBefore, notAfter, target, params)
+        callData.data, // callData to pass to the TimeCondition smart-contract: executeAt(notBefore, notAfter, target, params)
         ONE_ETHER, // ethForCall: value to forward
         false, // verifyUser
         false, // insertFeeAmount
         false, // isAlive
-        { value: ONE_ETHER.add(GAS_ESTIMATE) } // ETH to send, along with the gas of the future tx
+        { value: ONE_ETHER.add(GAS_PRICE.mul(GAS_LIMIT)) } // ETH to send, along with the gas of the future tx
       );
 
       reqReceipt = await tx.wait();
@@ -204,46 +197,23 @@ describe('TimeConditions contract', () => {
 
     it('Should Wrap one ETH at a later date', async () => {
 
-      // random balance check to confirm we have access to real ropsten data
-      const balance = await WETH.balanceOf('0x0B6a04b8D3d050cbeD9A4621A5D503F27743c942');
-      expect(balance).to.be.equal('100000000000000000');
+      const balanceBefore = await WETH.balanceOf(timeConditions.address);
+      expect(balanceBefore).to.be.equal('0');
 
-      const hash = await registry.getHashedReq(reqId);
-      console.log(hash);
-
-      // const stakeManager = new Contract('0xC1b69c44976FD1c3e3552Cbab38a6A78c2701508', stakeAbi, owner);
-      // const tx = await stakeManager.isUpdatedExec(owner.address);
-
-      // const tx = await registry.executeHashedReq(
-      //   reqId,
-      //   [ // Request struct (has more params than the "newReq" function)
-      //     owner.address, // user: msg.sender of the user creating the request with "newReq"
-      //     timeConditions.address, // target address, here the timeCondition, this is not the "final" target (the WETH contract)
-      //     ZERO_ADDRESS, // referrer address that may collect some fee because they brought the user into the Autonomy ecosystem
-
-      //     callData.data, // callData to pass to the TimeCondition smart-contract: executeAt(notBefore, notAfter, target, params)
-
-      //     ONE_ETHER.add(GAS_ESTIMATE), // initEthSent: total amount of eth sent = ethForCall + gas for later execution
-      //     ONE_ETHER, // ethForCall: value to forward
-          
-      //     false, // verifyUser
-      //     false, // insertFeeAmount
-      //     false, // payWithAUTO
-      //     false, // isAlive
-      //   ],
-      //   GAS_ESTIMATE,
-      // );
+      // if we don't increase it fails has expected (too early) but we don't get the error reason
+      await ethers.provider.send('evm_increaseTime', [ 2 * ONE_HOUR + 10 ]); // increase eth node time by some amount in seconds
+      await ethers.provider.send('evm_mine', []); // force mine a block so that block.timestamp is set as we wanted above
 
       const tx = await registry.executeHashedReq(
         reqId,
         [ // Request struct (has more params than the "newReq" function)
           owner.address, // user: msg.sender of the user creating the request with "newReq"
-          accountA.address, // target address, here the timeCondition, this is not the "final" target (the WETH contract)
+          timeConditions.address, // target address, here the timeCondition, this is not the "final" target (the WETH contract)
           ZERO_ADDRESS, // referrer address that may collect some fee because they brought the user into the Autonomy ecosystem
 
-          '0x', // callData to pass to the TimeCondition smart-contract: executeAt(notBefore, notAfter, target, params)
+          callData.data, // callData to pass to the TimeCondition smart-contract: executeAt(notBefore, notAfter, target, params)
 
-          ONE_ETHER.add(GAS_ESTIMATE), // initEthSent: total amount of eth sent = ethForCall + gas for later execution
+          ONE_ETHER.add(GAS_PRICE.mul(GAS_LIMIT)), // initEthSent: total amount of eth sent = ethForCall + gas for later execution
           ONE_ETHER, // ethForCall: value to forward
           
           false, // verifyUser
@@ -251,20 +221,14 @@ describe('TimeConditions contract', () => {
           false, // payWithAUTO
           false, // isAlive
         ],
-        GAS_ESTIMATE,
+        10_000,
       );
-
-      console.log(tx);
 
       const receipt = await tx.wait();
       expect(receipt.status).to.be.equal(1);
 
-      // TODO Check previous state
-      
-      // TODO poke the the registry to execute
-
-      // TODO Check current state
-
+      const balanceAfter = await WETH.balanceOf(timeConditions.address);
+      expect(balanceAfter).to.be.equal('1000000000000000000');
     });
 
   });
