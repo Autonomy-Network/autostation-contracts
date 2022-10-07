@@ -18,6 +18,10 @@ contract MockTarget {
         fundsRouter = fundsRouter_;
     }
 
+    function incrementX() external {
+        x++;
+    }
+
     function setX(uint newX) public payable {
         x = newX;
     }

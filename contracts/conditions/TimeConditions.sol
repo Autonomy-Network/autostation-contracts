@@ -51,6 +51,7 @@ contract TimeConditions {
     *               to ensure that different users can't affect the requests of other users.
     * @param callId An arbitrary request ID, used to differentiate between different requests
     *               from the same `user`.
+    * @param startTime      The unix time that the automation should start for the first time.
     * @param periodLength   The number of seconds that should have passed inbetween calls.
     */
     function everyTimePeriod(

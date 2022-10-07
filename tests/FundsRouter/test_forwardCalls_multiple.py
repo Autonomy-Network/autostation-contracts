@@ -1,6 +1,7 @@
 from consts import *
 from utils import *
 from brownie import reverts, chain
+import time
 
 
 # Single use automation
@@ -103,3 +104,18 @@ def test_forwardCalls_time_condition_everyTimePeriod(a, auto, evm_maths, fr, fr_
     assert fr.balance() == amount_dep - eth_for_exec_1 - eth_to_send - eth_for_exec_2 - eth_to_send
     assert auto.r.getHashedReqs() == hashes
     assert tx.events["HashedReqExecuted"][0].values() == [id, False]
+
+
+def test_forwardCalls_time_condition_everyTimePeriod_incrementX_tutorial_demo(a, auto, evm_maths, fr, fr_dep, tc, mock_target, deployer, user_a):
+    amount_dep, _ = fr_dep
+    PERIOD_LENGTH = 300
+    call_id = 1
+    tc_fcn_data = (tc.address, tc.everyTimePeriod.encode_input(user_a, call_id, time.time(), PERIOD_LENGTH), 0, True)
+    mock_target_fcn_data = (mock_target.address, mock_target.incrementX.encode_input(), 0, False)
+    fr_callData = fr.forwardCalls.encode_input(user_a, 0, [tc_fcn_data, mock_target_fcn_data])
+    
+    tx = auto.r.newReq(fr.address, ADDR_0, fr_callData, 0, True, True, True, {'from': user_a})
+
+    id = 0
+    req = (user_a, fr, ADDR_0, fr_callData, 0, 0, True, True, False, True)
+    tx = auto.r.executeHashedReq(id, req, 21000, {'from': deployer, 'gasPrice': INIT_GAS_PRICE_FAST})

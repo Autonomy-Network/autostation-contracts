@@ -382,7 +382,7 @@ contract Registry is IRegistry, Shared, ReentrancyGuard {
     //                                                          //
     //                        Cancellations                     //
     //                                                          //
-    //////////////////////////////////////////////////////////////    
+    //////////////////////////////////////////////////////////////
     
     function cancelHashedReq(
         uint id,

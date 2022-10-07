@@ -33,6 +33,8 @@ contract FundsRouter is ReentrancyGuard, Shared {
     // calls from it have the correct `user` argument, where the recipient
     // of the call(s) know that the `user` argument is correct
     IForwarder public immutable routerUserVeriForwarder;
+    // Targets that shouldn't be valid for security or other reasons
+    mapping(address => bool) private _invalidTargets;
 
 
     struct FcnData {
@@ -51,6 +53,10 @@ contract FundsRouter is ReentrancyGuard, Shared {
         registry = registry_;
         regUserFeeVeriForwarder = regUserFeeVeriForwarder_;
         routerUserVeriForwarder = routerUserVeriForwarder_;
+
+        _invalidTargets[address(this)] = true;
+        _invalidTargets[address(routerUserVeriForwarder_)] = true;
+        _invalidTargets[address(0)] = true;
     }
 
     /**
@@ -121,7 +127,9 @@ contract FundsRouter is ReentrancyGuard, Shared {
         bytes memory returnData;
         // Iterate through conditions and make sure they're all met
         for (uint i; i < fcnData.length; i++) {
+            require(!_invalidTargets[fcnData[i].target], "FRouter: nice try ;)");
             ethSent += fcnData[i].ethForCall;
+            
             if (fcnData[i].verifyUser) {
                 // Ensure that the 1st argument in this call is the user
                 require(abi.decode(fcnData[i].callData[4:36], (address)) == user, "FRouter: calldata not user");
